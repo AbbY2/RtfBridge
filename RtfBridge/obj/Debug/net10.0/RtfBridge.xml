@@ -1,0 +1,492 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RtfBridge</name>
+    </assembly>
+    <members>
+        <member name="T:RtfBridge.HtmlSanitizationLevel">
+            <summary>How aggressively to sanitize the emitted HTML.</summary>
+        </member>
+        <member name="F:RtfBridge.HtmlSanitizationLevel.None">
+            <summary>No sanitization. Text is still HTML-encoded to prevent injection.</summary>
+        </member>
+        <member name="F:RtfBridge.HtmlSanitizationLevel.Basic">
+            <summary>Encode all text; strip control characters. Default.</summary>
+        </member>
+        <member name="F:RtfBridge.HtmlSanitizationLevel.Strict">
+            <summary>Basic + drop any URL whose scheme is not in {http, https, mailto, tel, #}.</summary>
+        </member>
+        <member name="T:RtfBridge.RtfImageKind">
+            <summary>Category of an RTF picture payload.</summary>
+        </member>
+        <member name="T:RtfBridge.IImageRenderer">
+            <summary>A renderer capable of turning vector picture payloads (WMF/EMF) into raster bytes.</summary>
+        </member>
+        <member name="M:RtfBridge.IImageRenderer.CanRender(RtfBridge.RtfImageKind)">
+            <summary>Returns true when this renderer can process the specified <paramref name="kind"/>.</summary>
+        </member>
+        <member name="M:RtfBridge.IImageRenderer.Render(System.Byte[],RtfBridge.RtfImageKind)">
+            <summary>Renders vector bytes into a raster image. Return null to skip.</summary>
+        </member>
+        <member name="T:RtfBridge.RenderedImage">
+            <summary>Result of rendering a vector image to raster.</summary>
+        </member>
+        <member name="T:RtfBridge.IRtfBridgeConverter">
+            <summary>
+            Converts Rich Text Format (RTF) documents into HTML.
+            </summary>
+        </member>
+        <member name="M:RtfBridge.IRtfBridgeConverter.ConvertRtfToHtml(System.String)">
+            <summary>Converts an RTF string to a full HTML document using default options.</summary>
+        </member>
+        <member name="M:RtfBridge.IRtfBridgeConverter.ConvertRtfToHtml(System.String,RtfBridge.RtfToHtmlOptions)">
+            <summary>Converts an RTF string to HTML using the supplied options.</summary>
+        </member>
+        <member name="M:RtfBridge.IRtfBridgeConverter.ConvertRtfToHtml(System.IO.Stream,RtfBridge.RtfToHtmlOptions)">
+            <summary>Converts an RTF byte stream to HTML using the supplied options.</summary>
+        </member>
+        <member name="M:RtfBridge.IRtfBridgeConverter.ConvertRtfToHtmlDetailed(System.String,RtfBridge.RtfToHtmlOptions)">
+            <summary>Converts RTF to HTML and returns detailed conversion metadata (warnings, embedded images).</summary>
+        </member>
+        <member name="T:RtfBridge.RtfConversionResult">
+            <summary>Detailed result of an RTF-to-HTML conversion.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfConversionResult.Html">
+            <summary>The generated HTML.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfConversionResult.Warnings">
+            <summary>Non-fatal issues encountered during conversion.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfConversionResult.Images">
+            <summary>Images that were embedded in the output (for diagnostic / logging use).</summary>
+        </member>
+        <member name="T:RtfBridge.RtfConversionWarning">
+            <summary>A non-fatal issue encountered during conversion.</summary>
+        </member>
+        <member name="T:RtfBridge.RtfEmbeddedImage">
+            <summary>An image embedded in the output HTML.</summary>
+        </member>
+        <member name="T:RtfBridge.RtfParseException">
+            <summary>Thrown for unrecoverable RTF parse errors (truncated stream, invalid encoding, etc.).</summary>
+        </member>
+        <member name="T:RtfBridge.RtfToHtmlOptions">
+            <summary>Options controlling RTF-to-HTML conversion.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.EmitFullDocument">
+            <summary>Emit a full <c>&lt;!DOCTYPE html&gt;...&lt;/html&gt;</c> document. When false, only the body content is returned.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.InlineStyles">
+            <summary>Emit CSS as inline <c>style="..."</c> attributes (email-safe) instead of a shared <c>&lt;style&gt;</c> block.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.PreserveListNesting">
+            <summary>Preserve nested list levels (<c>\lsN \ilvlN</c>) as nested &lt;ul&gt;/&lt;ol&gt;.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.RenderHeadersFooters">
+            <summary>Emit RTF header/footer destinations as HTML &lt;header&gt;/&lt;footer&gt; elements.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.RenderFootnotesAsList">
+            <summary>Collect footnotes into an ordered list at the end of the document.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.RenderPageBreaks">
+            <summary>Emit <c>\page</c> and <c>\sect</c> as CSS page breaks.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.DeterministicOutput">
+            <summary>Guarantee byte-identical HTML output for identical input (stable attribute + CSS ordering).</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.DefaultCodePage">
+            <summary>ANSI code page used to decode <c>\'hh</c> escapes when the RTF does not specify <c>\ansicpg</c>. Default 1252.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.Sanitization">
+            <summary>HTML sanitization level (see <see cref="T:RtfBridge.HtmlSanitizationLevel"/>).</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.VectorImageRenderer">
+            <summary>Optional renderer for vector image formats (WMF/EMF). When null, vector images become an inline placeholder + warning.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.MaxImageBytes">
+            <summary>Maximum raw byte length allowed for any single embedded image. Larger images produce a warning and are skipped.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.RenderHiddenText">
+            <summary>Emit RTF hidden text (\v) as visible HTML. When false (default), \v runs are dropped.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.Default">
+            <summary>Default options.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.EmailSafe">
+            <summary>Email-friendly options: no full document, inline styles.</summary>
+        </member>
+        <member name="P:RtfBridge.RtfToHtmlOptions.FragmentOnly">
+            <summary>Fragment-only options: emit only the body content.</summary>
+        </member>
+        <member name="T:RtfBridge.EncodingBootstrap">
+            <summary>
+            Registers the CodePagesEncodingProvider once for the process so that legacy Windows codepages
+            (1250..1258, 932, 936, 949, 950, MacRoman, ...) can be resolved via <see cref="M:System.Text.Encoding.GetEncoding(System.Int32)"/>
+            on modern .NET where they are not registered by default.
+            </summary>
+        </member>
+        <member name="T:RtfBridge.Html.HtmlEmitter">
+            <summary>
+            Deterministic HTML5 emitter for a parsed <see cref="T:RtfBridge.Rtf.Model.RtfDocument"/>.
+            Paragraph formatting maps to inline CSS on &lt;p&gt;/&lt;span&gt; so output is email-safe.
+            </summary>
+        </member>
+        <member name="T:RtfBridge.RtfBridge">
+            <summary>
+            Pure-managed RTF-to-HTML converter. Entry point for the library.
+            Thread-safe: instances hold no mutable state; a single instance may be shared across threads.
+            </summary>
+        </member>
+        <member name="M:RtfBridge.RtfBridge.ConvertRtfToHtml(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:RtfBridge.RtfBridge.ConvertRtfToHtml(System.String,RtfBridge.RtfToHtmlOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:RtfBridge.RtfBridge.ConvertRtfToHtml(System.IO.Stream,RtfBridge.RtfToHtmlOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:RtfBridge.RtfBridge.ConvertRtfToHtmlDetailed(System.String,RtfBridge.RtfToHtmlOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.CharFormat">
+            <summary>Character-run visual properties.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.FontSizeHalfPoints">
+            <summary>Font size in half-points as stored in RTF (\fsN).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.AllCaps">
+            <summary>Render text as ALL CAPS (\caps).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.SmallCaps">
+            <summary>Render text as small caps (\scaps).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.Hidden">
+            <summary>Hidden text (\v). Not rendered by default; enabled via options.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.RightToLeft">
+            <summary>Character-run direction: right-to-left when true (\rtlch), left-to-right when false (\ltrch).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.UnderlineStyle">
+            <summary>Underline style variants (\ul, \uld, \uldb, \ulwave, ...).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.LanguageId">
+            <summary>BCP-47 language tag derived from \langN (LCID). Optional.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.CharFormat.BaselineShiftHalfPoints">
+            <summary>Baseline shift in half-points (\upN positive = raise, \dnN negative = lower). 0 = no shift.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.UnderlineStyle">
+            <summary>Underline style variants supported by RTF.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.ParagraphFormat">
+            <summary>Paragraph-level visual properties.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.LeftIndentTwips">
+            <summary>Left indent in twips (1/1440 inch).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.RightIndentTwips">
+            <summary>Right indent in twips.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.FirstLineIndentTwips">
+            <summary>First-line indent in twips (can be negative for hanging).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.SpaceBeforeTwips">
+            <summary>Space before paragraph in twips.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.SpaceAfterTwips">
+            <summary>Space after paragraph in twips.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.LineHeightTwips">
+            <summary>
+            Line spacing in twips (\slN). Positive = "at least" or "exact" depending on \slmult.
+            0 = auto/single. Negative RTF values mean "exact" (absolute); we store the absolute value
+            and set <see cref="P:RtfBridge.Rtf.Model.ParagraphFormat.LineHeightExact"/>.
+            </summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.LineHeightMultiple">
+            <summary>When true, \slmult1: line height is a multiple of single (240 twips = 1x).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.LineHeightExact">
+            <summary>When true, \slN was negative — treat as an exact (non-expanding) line height.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.RightToLeft">
+            <summary>Paragraph direction: true = RTL (\rtlpar), false = LTR (\ltrpar / default).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.KeepTogether">
+            <summary>Keep paragraph on one page (\keep).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.KeepWithNext">
+            <summary>Keep paragraph with the next paragraph (\keepn).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.PageBreakBefore">
+            <summary>Force a page break before this paragraph (\pagebb).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.PositionXTwips">
+            <summary>Horizontal absolute position in twips (\posx / \posnegx). 0 = unset.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.PositionYTwips">
+            <summary>Vertical absolute position in twips (\posy / \posnegy). 0 = unset.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.NamedHorizontalPosition">
+            <summary>Named horizontal position from \posxc/\posxl/\posxr, or None when \posxN is used.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.NamedVerticalPosition">
+            <summary>Named vertical position from \posyt/\posyc/\posyb, or None when \posyN is used.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.HorizontalReference">
+            <summary>Horizontal reference frame: page (\phpg), column (\phcol default), or margin (\phmrg).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.VerticalReference">
+            <summary>Vertical reference frame: page (\pvpg), paragraph (\pvpara default), or margin (\pvmrg).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.BackgroundColorIndex">
+            <summary>Paragraph background shading color-table index (\cbpat). Null = none.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.ParagraphFormat.BorderTop">
+            <summary>Paragraph borders (\brdrt/\brdrb/\brdrl/\brdrr, applied via \brdrbox).</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfDocument">
+            <summary>Root RTF document model.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfDocument.Header">
+            <summary>Captured header content (may be empty). Emission gated by options.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfDocument.Footer">
+            <summary>Captured footer content (may be empty). Emission gated by options.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfDocument.Footnotes">
+            <summary>Collected footnotes, indexed by 1-based reference number.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfParagraph.ListId">
+            <summary>Non-null when the paragraph belongs to a list (\lsN).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfParagraph.ListLevel">
+            <summary>Zero-based list nesting level (\ilvlN). Defaults to 0.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfList">
+            <summary>A materialised list of paragraphs formed from consecutive list-flagged paragraphs.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfTable">
+            <summary>A block-level table built from \trowd..\row groups.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfRow.HeightTwips">
+            <summary>Row height in twips (\trrh). 0 = unset. Negative in RTF = "exact"; stored as absolute.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfRow.HeightExact">
+            <summary>True when the row is exact-height (negative \trrhN).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfRow.Alignment">
+            <summary>Row-level horizontal alignment (\trql/\trqc/\trqr).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfRow.IsHeader">
+            <summary>True when \trhdr marks this row as a header row (repeats across pages).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfRow.PaddingLeftTwips">
+            <summary>Default cell padding (in twips) from \trpaddl/t/r/b. 0 = unset.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfCell.ColSpan">
+            <summary>Number of columns this cell spans horizontally (>= 1).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfCell.RightEdgeTwips">
+            <summary>Right boundary in twips (\cellxN).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfCell.WidthTwips">
+            <summary>Explicit cell width in twips (\clwWidth). 0 = derive from RightEdgeTwips.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfCell.VerticalAlignment">
+            <summary>Vertical alignment within cell (\clvertalt/c/b).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfCell.BackgroundColorIndex">
+            <summary>Background shading color-table index (\clcbpat). Null = none.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfCell.BorderTop">
+            <summary>Cell borders (top/right/bottom/left).</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.BorderSide">
+            <summary>Style of a single border side.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.BorderSide.WidthTwips">
+            <summary>Border width in twips (\brdrwN). 0 = default.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.BorderSide.ColorIndex">
+            <summary>Color-table index (\brdrcfN). Null = auto/default.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfListTable">
+            <summary>List-table info parsed from \listtable / \listoverridetable.</summary>
+        </member>
+        <member name="M:RtfBridge.Rtf.Model.RtfListTable.TryGet(System.Int32,RtfBridge.Rtf.Model.RtfListDefinition@)">
+            <summary>Resolve the definition referenced by \lsN. Returns false when unknown.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfListDefinition.Ordered">
+            <summary>True when at least one level uses a numeric bullet type (0=Arabic, ...).</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfFootnote">
+            <summary>A footnote captured from a \footnote destination.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfFootnote.Number">
+            <summary>1-based reference number assigned in document order.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfRun">
+            <summary>Base for inline runs inside a paragraph.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfTextRun">
+            <summary>A run of literal text.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfLineBreak">
+            <summary>An explicit line break inside a paragraph (RTF \line).</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfTab">
+            <summary>A tab character.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfImageRun">
+            <summary>An embedded image (from a \pict destination).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfImageRun.Bytes">
+            <summary>Raw image bytes. Empty when the picture could not be decoded and a placeholder is used.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfImageRun.MediaType">
+            <summary>IANA media type (e.g. image/png, image/jpeg, image/bmp). "" when placeholder.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfImageRun.WidthPx">
+            <summary>Desired width in pixels (0 = auto).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfImageRun.HeightPx">
+            <summary>Desired height in pixels (0 = auto).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfImageRun.WrapMode">
+            <summary>Text-wrap mode from \shpwr on the containing shape. 0 = inline (default).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.Model.RtfImageRun.IsPlaceholder">
+            <summary>When true, emit a text/placeholder instead of an &lt;img&gt; tag.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.ImageWrapMode">
+            <summary>Text-wrap mode for a shape-anchored image, from \shpwr.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.Model.ImageWrapMode.Inline">
+            <summary>No explicit wrap; render inline.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.Model.ImageWrapMode.TopBottom">
+            <summary>\shpwr1 — no text wrap (top/bottom).</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.Model.ImageWrapMode.Around">
+            <summary>\shpwr2 — around (tight/square).</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.Model.ImageWrapMode.None">
+            <summary>\shpwr3 — none (in front of / behind text).</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.Model.ImageWrapMode.Tight">
+            <summary>\shpwr4 — tight around.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.Model.ImageWrapMode.Through">
+            <summary>\shpwr5 — through.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfHyperlinkRun">
+            <summary>A hyperlink wrapping one or more child runs (result of a HYPERLINK field).</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfBookmarkAnchor">
+            <summary>A bookmark anchor emitted from \bkmkstart NAME.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.Model.RtfFootnoteRef">
+            <summary>An inline footnote reference emitted where \footnote occurs; content is stored on RtfDocument.Footnotes.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.PictParser">
+            <summary>
+            Parses the body of a <c>\pict</c> destination: consumes text tokens as hex nibbles
+            (or a preceding <c>\binN</c> raw payload; those bytes are already skipped by the
+            tokenizer, so here we only see hex-encoded payloads) and sniffs the image format.
+            </summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.PictParser.PictInfo.GoalWidthTwips">
+            <summary>Twips width from \picwgoal (preferred display size).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.PictParser.PictInfo.ScaleXPercent">
+            <summary>Horizontal scale factor in percent (\picscalex), default 100.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.PictParser.PictInfo.ScaleYPercent">
+            <summary>Vertical scale factor in percent (\picscaley), default 100.</summary>
+        </member>
+        <member name="M:RtfBridge.Rtf.PictParser.ReadPictGroup(System.Collections.Generic.List{RtfBridge.Rtf.RtfToken},System.Int32@,System.Int32,RtfBridge.RtfToHtmlOptions,System.Collections.Generic.List{RtfBridge.RtfConversionWarning})">
+            <summary>
+            Consumes tokens starting immediately after the opening <c>{</c> of a <c>\pict</c> group
+            (i.e. positioned so the next token is <c>\pict</c> itself or the first inner control word),
+            through the matching <c>}</c>. Returns the produced <see cref="T:RtfBridge.Rtf.Model.RtfImageRun"/> and appends
+            warnings on decode/skip issues.
+            </summary>
+            <param name="tokens">Full token list.</param>
+            <param name="index">Index reference: on entry, points at the first token inside the group. On exit, points at the token AFTER the matching close.</param>
+            <param name="depth">Depth of the group at entry (>=1). Reads until this depth returns to 0.</param>
+            <param name="options">Conversion options (max byte limit, etc.).</param>
+            <param name="warnings">Sink for non-fatal issues.</param>
+        </member>
+        <member name="M:RtfBridge.Rtf.PictParser.WrapDibAsBmp(System.Byte[])">
+            <summary>
+            A DIB has no 14-byte BMP file header. Wrap it so browsers can render it as image/bmp.
+            </summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.RtfParser">
+            <summary>
+            Parses a token stream from <see cref="T:RtfBridge.Rtf.RtfTokenizer"/> into an <see cref="T:RtfBridge.Rtf.Model.RtfDocument"/>.
+            Alpha-1 coverage: character formatting (b/i/ul/strike/super/sub, font/size/color),
+            paragraph formatting (alignment, indent, spacing), Unicode (\uN?, \'hh), tabs, line breaks,
+            font/color tables, common special-character escapes.
+            Higher features (lists, tables, images, fields, headers/footers) are consumed but not yet
+            emitted; they will land in subsequent phases.
+            </summary>
+        </member>
+        <member name="M:RtfBridge.Rtf.RtfParser.AddBlock(RtfBridge.Rtf.Model.RtfBlock)">
+            <summary>Route a completed block into either the active table cell or the document body.</summary>
+        </member>
+        <member name="M:RtfBridge.Rtf.RtfParser.ReadRunsIntoDestination(System.Collections.Generic.List{RtfBridge.Rtf.Model.RtfRun})">
+            <summary>
+            Reads runs from an inner destination group (we are positioned inside the group; depth starts at 1)
+            into a target run list. The matching close-brace is consumed and PopGroup is called.
+            </summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.RtfParser.TableBuildState.PendingCell">
+            <summary>Scratch cell format being accumulated for the next \cellx.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.RtfParser.TableBuildState.RowDef">
+            <summary>Row-level state accumulated between \trowd and \row.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.RtfParser.TableBuildState.CurrentBorderTarget">
+            <summary>Which entity/side the current \brdr* control words are targeting.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.RtfParser.BorderTarget">
+            <summary>Identifies the border side that upcoming \brdr* control words modify.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.RtfTokenType.GroupStart">
+            <summary>Opening group brace <c>{</c>.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.RtfTokenType.GroupEnd">
+            <summary>Closing group brace <c>}</c>.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.RtfTokenType.ControlWord">
+            <summary>Control word, e.g. <c>\b</c> or <c>\fs24</c>.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.RtfTokenType.ControlSymbol">
+            <summary>Control symbol, e.g. <c>\*</c>, <c>\~</c>, <c>\-</c>, <c>\_</c>, <c>\\</c>, <c>\{</c>, <c>\}</c>.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.RtfTokenType.Text">
+            <summary>Raw text.</summary>
+        </member>
+        <member name="F:RtfBridge.Rtf.RtfTokenType.Eof">
+            <summary>End of input.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.RtfToken.Value">
+            <summary>Control-word name (without leading backslash) or control-symbol character, or literal text.</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.RtfToken.Parameter">
+            <summary>Numeric parameter for control words (null when absent).</summary>
+        </member>
+        <member name="P:RtfBridge.Rtf.RtfToken.Position">
+            <summary>Byte offset in the source where this token started.</summary>
+        </member>
+        <member name="T:RtfBridge.Rtf.RtfTokenizer">
+            <summary>
+            Streaming RTF tokenizer. Produces <see cref="T:RtfBridge.Rtf.RtfToken"/>s from an RTF byte payload.
+            Reads bytes (not chars) because RTF is a 7-bit ASCII envelope with codepage/Unicode escapes
+            (<c>\'hh</c> and <c>\uN?</c>) that decode to text.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,34 @@
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\RtfBridge.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\System.Buffers.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\System.Memory.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\System.Numerics.Vectors.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\System.Runtime.CompilerServices.Unsafe.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\bin\Debug\net462\System.Text.Encoding.CodePages.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridgeConverter.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridgeConverter.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridgeConverter.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridgeConverter.AssemblyInfo.cs
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridgeConverter.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridg.CA1FD623.Up2Date
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge\obj\Debug\net462\RtfBridge.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\RtfBridge.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\System.Buffers.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\System.Memory.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\System.Numerics.Vectors.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\System.Runtime.CompilerServices.Unsafe.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge\bin\Debug\net462\System.Text.Encoding.CodePages.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridgeConverter.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridgeConverter.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridgeConverter.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridgeConverter.AssemblyInfo.cs
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridgeConverter.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridg.CA1FD623.Up2Date
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge\obj\Debug\net462\RtfBridge.pdb

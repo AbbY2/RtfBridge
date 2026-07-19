@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RtfBridge.SystemDrawing</name>
+    </assembly>
+    <members>
+        <member name="T:RtfBridge.SystemDrawing.SystemDrawingImageRenderer">
+            <summary>
+            Rasterizes WMF/EMF picture payloads to PNG via <see cref="T:System.Drawing.Imaging.Metafile"/> (GDI+).
+            Windows-only. On non-Windows hosts <see cref="M:RtfBridge.SystemDrawing.SystemDrawingImageRenderer.Render(System.Byte[],RtfBridge.RtfImageKind)"/> returns <c>null</c> so the core
+            library falls back to its inline placeholder + warning.
+            </summary>
+        </member>
+        <member name="P:RtfBridge.SystemDrawing.SystemDrawingImageRenderer.TargetDpi">
+            <summary>Target DPI used when rasterizing. Defaults to 96.</summary>
+        </member>
+        <member name="P:RtfBridge.SystemDrawing.SystemDrawingImageRenderer.MaxOutputDimensionPx">
+            <summary>Optional cap on output pixel dimensions. Metafiles that would exceed this are downscaled.</summary>
+        </member>
+        <member name="M:RtfBridge.SystemDrawing.SystemDrawingImageRenderer.CanRender(RtfBridge.RtfImageKind)">
+            <inheritdoc />
+        </member>
+        <member name="M:RtfBridge.SystemDrawing.SystemDrawingImageRenderer.Render(System.Byte[],RtfBridge.RtfImageKind)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

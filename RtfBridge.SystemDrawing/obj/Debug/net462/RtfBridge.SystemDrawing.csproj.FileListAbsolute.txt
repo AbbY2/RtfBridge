@@ -1,0 +1,40 @@
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.SystemDrawing.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.SystemDrawing.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.SystemDrawing.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\System.Buffers.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\System.Memory.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\System.Numerics.Vectors.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\System.Runtime.CompilerServices.Unsafe.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\System.Text.Encoding.CodePages.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.AssemblyInfo.cs
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridg.6A6947AF.Up2Date
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.SystemDrawing.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.SystemDrawing.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.SystemDrawing.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\System.Buffers.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\System.Memory.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\System.Numerics.Vectors.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\System.Runtime.CompilerServices.Unsafe.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\System.Text.Encoding.CodePages.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\bin\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.AssemblyInfo.cs
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridg.6A6947AF.Up2Date
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing\obj\Debug\net462\RtfBridge.SystemDrawing.pdb

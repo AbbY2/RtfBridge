@@ -1,0 +1,13 @@
+MarkupConverter.sln
+docs\MarkupConverter-Improvement-Plan.md
+MarkupConverter\MarkupConverter.cs
+MarkupConverter\MarkupConverter.csproj
+MarkupConverter\Abstractions\IMarkupConverter.cs
+MarkupConverter.AspNetCore\MarkupConverter.AspNetCore.csproj
+MarkupConverter.AspNetCore\MarkupConverterEndpointRouteBuilderExtensions.cs
+MarkupConverter.AspNetCore\MarkupConverterServiceCollectionExtensions.cs
+MarkupConverter.AspNetCore.Tests\MarkupConverter.AspNetCore.Tests.csproj
+MarkupConverter.SystemDrawing\MarkupConverter.SystemDrawing.csproj
+MarkupConverter.SystemDrawing.Tests\MarkupConverter.SystemDrawing.Tests.csproj
+MarkupConverter.Tests\MarkupConverter.Tests.csproj
+MarkupConverterTester\MarkupConverterTester.csproj

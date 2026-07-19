@@ -1,0 +1,36 @@
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.deps.json
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.AssemblyInfo.cs
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridg.99A0515D.Up2Date
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\refint\RtfBridge.AspNetCore.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.AspNetCore\obj\Debug\net8.0\ref\RtfBridge.AspNetCore.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.deps.json
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.AspNetCore.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\bin\Debug\net8.0\RtfBridge.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.AssemblyInfo.cs
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridg.99A0515D.Up2Date
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\refint\RtfBridge.AspNetCore.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\RtfBridge.AspNetCore.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.AspNetCore\obj\Debug\net8.0\ref\RtfBridge.AspNetCore.dll

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>false</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <PackageId>RtfBridge.AspNetCore</PackageId>
+    <Version>2.0</Version>
+    <Authors>Amit Tiwari</Authors>
+    <Company>Amit Tiwari</Company>
+    <Product>RtfBridge.AspNetCore</Product>
+    <Copyright>Developed by Amit Tiwari</Copyright>
+    <Description>ASP.NET Core integration for RtfBridge: DI extensions and a ready-made minimal-API endpoint that converts RTF to HTML.</Description>
+    <PackageTags>rtf;html;aspnetcore;middleware;di;converter</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\RtfBridge\RtfBridgeConverter.csproj" />
+  </ItemGroup>
+
+</Project>

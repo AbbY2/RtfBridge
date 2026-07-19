@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;net8.0-windows;net10.0-windows</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageId>RtfBridge.SystemDrawing</PackageId>
+    <Version>2.0</Version>
+    <Authors>Amit Tiwari</Authors>
+    <Company>Amit Tiwari</Company>
+    <Product>RtfBridge.SystemDrawing</Product>
+    <Copyright>Developed by Amit Tiwari</Copyright>
+    <Description>Optional WMF/EMF vector image renderer for RtfBridge, based on System.Drawing.Common (Windows).</Description>
+    <PackageTags>rtf;html;wmf;emf;system.drawing;metafile</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RtfBridge\RtfBridgeConverter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows' or '$(TargetFramework)' == 'net10.0-windows'">
+    <PackageReference Include="System.Drawing.Common" Version="8.0.7" />
+  </ItemGroup>
+
+</Project>

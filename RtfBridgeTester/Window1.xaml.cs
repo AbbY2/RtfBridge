@@ -1,0 +1,104 @@
+﻿// ============================================================================
+// Product:   RtfBridgeTester
+// File:      Window1.xaml.cs
+// Author:    Amit Tiwari
+// Company:   Amit Tiwari
+// Copyright: Copyright (c) 2026 Amit Tiwari. All rights reserved.
+// Version:   2.0
+// License:   MIT
+// ============================================================================
+using System.IO;
+using System.Text;
+using System.Windows;
+using Microsoft.Win32;
+using MC = global::RtfBridge;
+
+
+namespace RtfBridge
+{
+
+    public partial class Window1 : Window
+    {
+        public Window1()
+        {
+        }
+
+        public void convertHTMLToXAML(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("HTML/XAML conversion has been removed in v2. Use RTF → HTML instead.");
+        }
+
+        public void convertXAMLToHTML(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("HTML/XAML conversion has been removed in v2. Use RTF → HTML instead.");
+        }
+
+        public void convertRtfToHtml(object sender, RoutedEventArgs e)
+        {
+            // v2 API: pure-managed RTF -> HTML. Use the SystemDrawing renderer on Windows so WMF/EMF images embed.
+            var options = new MC.RtfToHtmlOptions
+            {
+                EmitFullDocument = true,
+                VectorImageRenderer = new global::RtfBridge.SystemDrawing.SystemDrawingImageRenderer(),
+            };
+            var converter = new MC.RtfBridge();
+            string rtf = _loadedRtf ?? myTextBox3.Text;
+            string html;
+            try
+            {
+                html = converter.ConvertRtfToHtml(rtf, options);
+            }
+            catch (System.Exception ex)
+            {
+                html = "<html><body><pre>Conversion error: " + System.Net.WebUtility.HtmlEncode(ex.ToString()) + "</pre></body></html>";
+            }
+            myHtmlOutput.Text = html;
+            try
+            {
+                htmlPreview.NavigateToString(string.IsNullOrWhiteSpace(html) ? "<html><body></body></html>" : html);
+            }
+            catch { /* preview is best-effort */ }
+        }
+
+        private string _loadedRtf;
+
+        public void loadRtfFile(object sender, RoutedEventArgs e)
+        {
+            var dlg = new OpenFileDialog { Filter = "RTF files (*.rtf)|*.rtf|All files (*.*)|*.*" };
+            if (dlg.ShowDialog(this) != true) return;
+            // Read as raw bytes so \pict binary/hex data is preserved. RTF is ASCII-safe;
+            // non-ASCII chars are already encoded as \'hh or \uN in the file.
+            byte[] bytes = File.ReadAllBytes(dlg.FileName);
+            _loadedRtf = Encoding.GetEncoding(1252).GetString(bytes);
+            myTextBox3.Text = "[Loaded " + dlg.FileName + " (" + bytes.Length + " bytes)] Click Convert! to render.";
+        }
+
+        public void convertHtmlToRtf(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("HTML → RTF conversion has been removed in v2.");
+        }
+
+        public void copyXAML(object sender, RoutedEventArgs e)
+        {
+            myTextBox.SelectAll();
+            myTextBox.Copy();
+        }
+        public void copyHTML(object sender, RoutedEventArgs e)
+        {
+            myTextBox2.SelectAll();
+            myTextBox2.Copy();
+        }
+
+        public void copyHTML2(object sender, RoutedEventArgs e)
+        {
+            myTextBox3.SelectAll();
+            myTextBox3.Copy();
+        }
+
+        public void copyRTF(object sender, RoutedEventArgs e)
+        {
+            myTextBox4.SelectAll();
+            myTextBox4.Copy();
+        }
+    }
+}

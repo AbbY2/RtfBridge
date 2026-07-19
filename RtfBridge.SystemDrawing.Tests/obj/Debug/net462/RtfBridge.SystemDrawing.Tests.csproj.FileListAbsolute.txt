@@ -1,0 +1,320 @@
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\.msCoverageSourceRootsMapping_RtfBridge.SystemDrawing.Tests
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.abstractions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.runner.visualstudio.testadapter.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.runner.reporters.net452.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.runner.utility.net452.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.Tests.dll.config
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.Tests.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.Tests.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.VisualStudio.CodeCoverage.Shim.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.TestPlatform.CoreUtilities.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.TestPlatform.PlatformAbstractions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Buffers.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.Immutable.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Memory.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Numerics.Vectors.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.Metadata.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.CompilerServices.Unsafe.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.Encoding.CodePages.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.assert.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.core.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.execution.desktop.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\cs\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\cs\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\de\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\de\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\es\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\es\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\fr\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\fr\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\it\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\it\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ja\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ja\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ko\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ko\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pl\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pl\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pt-BR\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pt-BR\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ru\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ru\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\tr\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\tr\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hans\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hans\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hant\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hant\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.InteropServices.RuntimeInformation.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.Win32.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\netstandard.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.AppContext.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.Concurrent.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.NonGeneric.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.Specialized.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.EventBasedAsync.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.TypeConverter.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Console.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Data.Common.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Contracts.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Debug.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.FileVersionInfo.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Process.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.StackTrace.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.TextWriterTraceListener.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Tools.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.TraceSource.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Tracing.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Drawing.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Dynamic.Runtime.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Globalization.Calendars.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Globalization.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Globalization.Extensions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.Compression.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.Compression.ZipFile.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.DriveInfo.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.Watcher.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.IsolatedStorage.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.MemoryMappedFiles.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.Pipes.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.UnmanagedMemoryStream.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.Expressions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.Parallel.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.Queryable.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Http.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.NameResolution.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.NetworkInformation.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Ping.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Requests.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Security.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Sockets.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.WebHeaderCollection.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.WebSockets.Client.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.WebSockets.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ObjectModel.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.Extensions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Resources.Reader.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Resources.ResourceManager.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Resources.Writer.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.CompilerServices.VisualC.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Extensions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Handles.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.InteropServices.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Numerics.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Formatters.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Json.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Xml.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Claims.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Algorithms.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Csp.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Encoding.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Primitives.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.X509Certificates.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Principal.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.SecureString.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.Encoding.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.Encoding.Extensions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.RegularExpressions.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Overlapped.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Tasks.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Tasks.Parallel.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Thread.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.ThreadPool.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Timer.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ValueTuple.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.ReaderWriter.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XDocument.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XmlDocument.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XmlSerializer.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XPath.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XPath.XDocument.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.pdb
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.xml
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.csproj.SuggestedBindingRedirects.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.dll.config
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.AssemblyInfo.cs
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridg.2EEBEE4B.Up2Date
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.dll
+C:\code\RtfToHtml\RTFTPHTML Final Code\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\.msCoverageSourceRootsMapping_RtfBridge.SystemDrawing.Tests
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.runner.visualstudio.testadapter.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.abstractions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.runner.reporters.net452.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.runner.utility.net452.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.Tests.dll.config
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.Tests.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.Tests.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.VisualStudio.CodeCoverage.Shim.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.TestPlatform.CoreUtilities.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.TestPlatform.PlatformAbstractions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Buffers.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.Immutable.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Memory.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Numerics.Vectors.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.Metadata.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.CompilerServices.Unsafe.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.Encoding.CodePages.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.assert.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.core.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\xunit.execution.desktop.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\cs\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\cs\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\de\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\de\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\es\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\es\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\fr\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\fr\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\it\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\it\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ja\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ja\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ko\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ko\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pl\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pl\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pt-BR\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\pt-BR\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ru\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\ru\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\tr\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\tr\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hans\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hans\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hant\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\zh-Hant\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.InteropServices.RuntimeInformation.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\Microsoft.Win32.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\netstandard.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.AppContext.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.Concurrent.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.NonGeneric.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Collections.Specialized.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.EventBasedAsync.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ComponentModel.TypeConverter.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Console.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Data.Common.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Contracts.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Debug.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.FileVersionInfo.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Process.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.StackTrace.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.TextWriterTraceListener.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Tools.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.TraceSource.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Diagnostics.Tracing.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Drawing.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Dynamic.Runtime.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Globalization.Calendars.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Globalization.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Globalization.Extensions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.Compression.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.Compression.ZipFile.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.DriveInfo.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.FileSystem.Watcher.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.IsolatedStorage.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.MemoryMappedFiles.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.Pipes.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.IO.UnmanagedMemoryStream.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.Expressions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.Parallel.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Linq.Queryable.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Http.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.NameResolution.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.NetworkInformation.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Ping.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Requests.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Security.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.Sockets.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.WebHeaderCollection.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.WebSockets.Client.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Net.WebSockets.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ObjectModel.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.Extensions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Reflection.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Resources.Reader.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Resources.ResourceManager.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Resources.Writer.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.CompilerServices.VisualC.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Extensions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Handles.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.InteropServices.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Numerics.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Formatters.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Json.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Runtime.Serialization.Xml.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Claims.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Algorithms.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Csp.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Encoding.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.Primitives.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Cryptography.X509Certificates.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.Principal.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Security.SecureString.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.Encoding.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.Encoding.Extensions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Text.RegularExpressions.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Overlapped.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Tasks.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Tasks.Parallel.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Thread.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.ThreadPool.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Threading.Timer.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.ValueTuple.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.ReaderWriter.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XDocument.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XmlDocument.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XmlSerializer.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XPath.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\System.Xml.XPath.XDocument.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.pdb
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\bin\Debug\net462\RtfBridge.SystemDrawing.xml
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.csproj.AssemblyReference.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.csproj.SuggestedBindingRedirects.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.dll.config
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.AssemblyInfoInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.AssemblyInfo.cs
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.csproj.CoreCompileInputs.cache
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridg.2EEBEE4B.Up2Date
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.dll
+C:\code\RtfToHtml\RtfBridge\RtfBridge.SystemDrawing.Tests\obj\Debug\net462\RtfBridge.SystemDrawing.Tests.pdb
