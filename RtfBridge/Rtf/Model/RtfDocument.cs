@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Product:   RtfBridge
 // File:      RtfDocument.cs
 // Author:    Amit Tiwari
@@ -16,6 +16,14 @@ internal sealed class RtfDocument
 {
     public int AnsiCodePage { get; set; } = 1252;
     public int DefaultFontIndex { get; set; }
+    /// <summary>LCID from \deflangN or the \s0 Normal style \langN. 0 = unset.</summary>
+    public int DefaultLanguageId { get; set; }
+
+    /// <summary>Font size (half-points) from the \s0 Normal style. 0 = unset (falls back to RTF default 12pt).</summary>
+    public int DefaultBodyFontSizeHalfPoints { get; set; }
+
+    /// <summary>Color-table index from the \s0 Normal style \cfN. Null = unset (auto = black).</summary>
+    public int? DefaultBodyColorIndex { get; set; }
     public RtfFontTable Fonts { get; } = new RtfFontTable();
     public RtfColorTable Colors { get; } = new RtfColorTable();
     public RtfListTable Lists { get; } = new RtfListTable();
@@ -54,6 +62,12 @@ internal sealed class RtfList : RtfBlock
 {
     public bool Ordered { get; set; }
     public List<RtfListItem> Items { get; } = new List<RtfListItem>();
+
+    /// <summary>Reference to the list definition containing level formatting info. Null for legacy lists.</summary>
+    public RtfListDefinition? Definition { get; set; }
+
+    /// <summary>List ID from \lsN. Used to look up definition.</summary>
+    public int? ListId { get; set; }
 }
 
 internal sealed class RtfListItem
@@ -61,6 +75,9 @@ internal sealed class RtfListItem
     public int Level { get; set; }
     public List<RtfRun> Runs { get; } = new List<RtfRun>();
     public ParagraphFormat Format { get; set; } = new ParagraphFormat();
+
+    /// <summary>The numbering value for this item (1-based). Used for custom start values.</summary>
+    public int Number { get; set; } = 1;
 }
 
 /// <summary>A block-level table built from \trowd..\row groups.</summary>
@@ -96,6 +113,18 @@ internal sealed class RtfCell
 {
     /// <summary>Number of columns this cell spans horizontally (>= 1).</summary>
     public int ColSpan { get; set; } = 1;
+
+    /// <summary>Number of rows this cell spans vertically (>= 1), resolved from \clvmgf/\clvmrg.</summary>
+    public int RowSpan { get; set; } = 1;
+
+    /// <summary>True when this cell begins a vertical merge (\clvmgf).</summary>
+    public bool VerticalMergeStart { get; set; }
+
+    /// <summary>True when this cell continues a vertical merge from the row above (\clvmrg).</summary>
+    public bool VerticalMergeContinue { get; set; }
+
+    /// <summary>Set during merge resolution when this cell is absorbed by an origin cell and must not render.</summary>
+    public bool SuppressRender { get; set; }
 
     /// <summary>Right boundary in twips (\cellxN).</summary>
     public int RightEdgeTwips { get; set; }
@@ -172,6 +201,37 @@ internal sealed class RtfListDefinition
 {
     /// <summary>True when at least one level uses a numeric bullet type (0=Arabic, ...).</summary>
     public bool Ordered { get; set; }
+
+    /// <summary>List level definitions (max 9 levels, indexed 0-8). Empty for simple legacy lists.</summary>
+    public List<RtfListLevelDefinition> Levels { get; } = new List<RtfListLevelDefinition>();
+}
+
+/// <summary>Definition for a single list level parsed from \listlevel.</summary>
+internal sealed class RtfListLevelDefinition
+{
+    /// <summary>Numbering format (\levelnfc / \levelnfcn): 0=Arabic, 1=UpperRoman, 2=LowerRoman, 3=UpperAlpha, 4=LowerAlpha, 23=Bullet, etc.</summary>
+    public int NumberFormat { get; set; }
+
+    /// <summary>Start value for numbered lists (\levelstartat). Default is 1.</summary>
+    public int StartAt { get; set; } = 1;
+
+    /// <summary>Level text template (\leveltext), e.g., "%1.", "%1.%2.", or a bullet character.</summary>
+    public string? LevelText { get; set; }
+
+    /// <summary>Justification (\leveljc): 0=left, 1=center, 2=right.</summary>
+    public int Justification { get; set; }
+
+    /// <summary>Follow character (\levelfollow): 0=tab, 1=space, 2=nothing.</summary>
+    public int FollowChar { get; set; }
+
+    /// <summary>True if this level restarts numbering (\levelnorestart 0 or absent).</summary>
+    public bool Restart { get; set; } = true;
+
+    /// <summary>True if this is a legal-style numbered list (\levellegal).</summary>
+    public bool Legal { get; set; }
+
+    /// <summary>Font index for bullet character (\levelnumbers or level text parsing).</summary>
+    public int? FontIndex { get; set; }
 }
 
 /// <summary>A footnote captured from a \footnote destination.</summary>

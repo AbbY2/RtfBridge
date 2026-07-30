@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Product:   RtfBridge
 // File:      HtmlEmitter.cs
 // Author:    Amit Tiwari
@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using RtfBridge.Rtf;
 using RtfBridge.Rtf.Model;
 
 namespace RtfBridge.Html;
@@ -24,10 +25,32 @@ internal sealed class HtmlEmitter
     private readonly RtfDocument _doc;
     private readonly RtfToHtmlOptions _options;
 
+    // Body defaults computed from the Normal (\s0) style.
+    // Null = not computed / fragment mode — no suppression applied.
+    private string? _bodyFontFamily;
+    private string? _bodyFontSizePt;
+    private string? _bodyColorHex;
+
     public HtmlEmitter(RtfDocument doc, RtfToHtmlOptions options)
     {
         _doc = doc ?? throw new ArgumentNullException(nameof(doc));
         _options = options ?? throw new ArgumentNullException(nameof(options));
+    }
+
+    private void ComputeBodyDefaults()
+    {
+        if (_doc.Fonts.TryGet(_doc.DefaultFontIndex, out var defFont) && !string.IsNullOrEmpty(defFont.Name))
+            _bodyFontFamily = "'" + EscapeCssString(defFont.Name) + "'";
+
+        int halfPts = _doc.DefaultBodyFontSizeHalfPoints > 0 ? _doc.DefaultBodyFontSizeHalfPoints : 24;
+        _bodyFontSizePt = (halfPts / 2.0).ToString("0.##", CultureInfo.InvariantCulture) + "pt";
+
+        if (_doc.DefaultBodyColorIndex.HasValue)
+        {
+            var c = _doc.Colors.GetOrAuto(_doc.DefaultBodyColorIndex.Value);
+            if (!c.IsAuto) _bodyColorHex = ToCssHex(c);
+        }
+        _bodyColorHex ??= "#000000";
     }
 
     public string Emit()
@@ -36,7 +59,13 @@ internal sealed class HtmlEmitter
 
         if (_options.EmitFullDocument)
         {
-            sb.Append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body>");
+            ComputeBodyDefaults();
+            sb.Append("<!DOCTYPE html><html");
+            string? docLang = LcidToBcp47(_doc.DefaultLanguageId);
+            if (docLang != null) sb.Append(" lang=\"").Append(docLang).Append('"');
+            sb.Append("><head><meta charset=\"utf-8\">");
+            EmitBodyStyleBlock(sb);
+            sb.Append("</head><body>");
         }
 
         if (_options.RenderHeadersFooters && _doc.Header.Count > 0)
@@ -97,10 +126,30 @@ internal sealed class HtmlEmitter
         return sb.ToString();
     }
 
+    private void EmitBodyStyleBlock(StringBuilder sb)
+    {
+        sb.Append("<style>");
+        sb.Append("body{");
+        if (_bodyFontFamily != null) sb.Append("font-family:").Append(_bodyFontFamily).Append(';');
+        if (_bodyFontSizePt  != null) sb.Append("font-size:").Append(_bodyFontSizePt).Append(';');
+        if (_bodyColorHex    != null) sb.Append("color:").Append(_bodyColorHex).Append(';');
+        sb.Append("widows:0;orphans:0}");
+        sb.Append("h1,h2,h3,h4,h5,h6,p{margin:0}");
+        sb.Append("li,table{margin-top:0;margin-bottom:0}");
+        sb.Append("img{max-width:100%;height:auto}");
+        sb.Append("table{border-collapse:collapse}");
+        sb.Append("</style>");
+    }
+
     private void EmitParagraph(StringBuilder sb, RtfParagraph p)
     {
+        // Outline levels 0..5 (\outlinelevelN or "heading N" styles) become <h1>..<h6>.
+        string tag = p.Format.OutlineLevel is int ol && ol >= 0 && ol <= 5 && p.Runs.Count > 0
+            ? "h" + (ol + 1).ToString(CultureInfo.InvariantCulture)
+            : "p";
+
         string style = BuildParagraphStyle(p.Format);
-        sb.Append("<p");
+        sb.Append('<').Append(tag);
         if (p.Format.RightToLeft) sb.Append(" dir=\"rtl\"");
         if (style.Length > 0)
         {
@@ -110,18 +159,18 @@ internal sealed class HtmlEmitter
 
         if (p.Runs.Count == 0)
         {
-            // Preserve empty paragraphs as a visual line.
-            sb.Append("<br>");
+            // Preserve empty paragraphs — &nbsp; keeps the line height without injecting a block element.
+            sb.Append("&nbsp;");
         }
         else
         {
-            foreach (var run in p.Runs)
+            foreach (var run in MergeRuns(p.Runs))
             {
                 EmitRun(sb, run);
             }
         }
 
-        sb.Append("</p>");
+        sb.Append("</").Append(tag).Append('>');
     }
 
     private void EmitRun(StringBuilder sb, RtfRun run)
@@ -131,9 +180,22 @@ internal sealed class HtmlEmitter
             case RtfLineBreak _:
                 sb.Append("<br>");
                 return;
-            case RtfTab _:
-                // Preserve tab as an em-space; keeps whitespace deterministic in HTML.
-                sb.Append("&emsp;");
+            case RtfTab tab:
+                if (tab.WidthTwips > 0)
+                {
+                    // Tab resolved to a defined stop: emit a sized spacer, adding a baseline
+                    // leader line when the stop specifies one (e.g. TOC dot leaders).
+                    sb.Append("<span style=\"display:inline-block;width:")
+                      .Append(TwipsToPt(tab.WidthTwips)).Append("pt");
+                    string leaderCss = TabLeaderCss(tab.Leader);
+                    if (leaderCss.Length > 0) sb.Append(';').Append(leaderCss);
+                    sb.Append("\"></span>");
+                }
+                else
+                {
+                    // Default tab: preserve as an em-space; keeps whitespace deterministic.
+                    sb.Append("&emsp;");
+                }
                 return;
             case RtfImageRun img:
                 EmitImage(sb, img);
@@ -186,6 +248,12 @@ internal sealed class HtmlEmitter
 
     private void EmitHyperlink(StringBuilder sb, RtfHyperlinkRun link)
     {
+        if (!IsAllowedUrl(link.Url))
+        {
+            // Dangerous or disallowed scheme — keep the link text, drop the anchor.
+            foreach (var c in link.Children) EmitRun(sb, c);
+            return;
+        }
         sb.Append("<a href=\"");
         AppendAttributeEscaped(sb, link.Url);
         sb.Append("\">");
@@ -193,38 +261,163 @@ internal sealed class HtmlEmitter
         sb.Append("</a>");
     }
 
+    /// <summary>
+    /// URL policy per <see cref="HtmlSanitizationLevel"/>:
+    /// None   — everything passes through;
+    /// Basic  — block known script-execution schemes (javascript:, vbscript:, data:, ...);
+    /// Strict — allow only http, https, mailto, tel, and fragment (#) links.
+    /// </summary>
+    private bool IsAllowedUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return false;
+        if (_options.Sanitization == HtmlSanitizationLevel.None) return true;
+
+        string trimmed = url.TrimStart();
+        if (trimmed.StartsWith("#", StringComparison.Ordinal)) return true;
+
+        int colon = trimmed.IndexOf(':');
+        if (colon < 0)
+        {
+            // Relative URL — allowed at Basic, blocked at Strict (spec: scheme allowlist only).
+            return _options.Sanitization == HtmlSanitizationLevel.Basic;
+        }
+
+        string scheme = trimmed.Substring(0, colon).Trim().ToLowerInvariant();
+        if (_options.Sanitization == HtmlSanitizationLevel.Strict)
+        {
+            return scheme == "http" || scheme == "https" || scheme == "mailto" || scheme == "tel";
+        }
+
+        // Basic: deny-list of script-capable schemes.
+        return scheme != "javascript" && scheme != "vbscript" && scheme != "data" && scheme != "file";
+    }
+
     private void EmitList(StringBuilder sb, RtfList list)
     {
-        string tag = list.Ordered ? "ol" : "ul";
-        int currentLevel = 0;
-        sb.Append('<').Append(tag).Append('>');
-        foreach (var item in list.Items)
+        if (list.Items.Count == 0) return;
+
+        // For nested lists, we need to track the nesting stack
+        var nestingStack = new Stack<ListLevelInfo>();
+        int currentLevel = -1;
+
+        for (int i = 0; i < list.Items.Count; i++)
         {
-            int lvl = item.Level < 0 ? 0 : item.Level;
-            while (currentLevel < lvl)
+            var item = list.Items[i];
+            int itemLevel = _options.PreserveListNesting ? item.Level : 0;
+
+            // Close lists deeper than the current level
+            while (currentLevel > itemLevel && nestingStack.Count > 0)
             {
-                sb.Append('<').Append(tag).Append('>');
-                currentLevel++;
-            }
-            while (currentLevel > lvl)
-            {
-                sb.Append("</").Append(tag).Append('>');
+                var closingInfo = nestingStack.Pop();
+                sb.Append("</").Append(closingInfo.Tag).Append('>');
                 currentLevel--;
             }
+
+            // Open new list levels up to the item level
+            while (currentLevel < itemLevel)
+            {
+                currentLevel++;
+
+                // Determine the tag and style for this level
+                string tag;
+                string? styleAttr = null;
+                RtfListLevelDefinition? levelDef = null;
+
+                if (list.Definition != null && currentLevel < list.Definition.Levels.Count)
+                {
+                    levelDef = list.Definition.Levels[currentLevel];
+                    bool isBullet = ListNumberingFormatter.IsBulletFormat(levelDef.NumberFormat);
+                    tag = isBullet ? "ul" : "ol";
+
+                    // Get CSS list-style-type; only emit it when it differs from the tag's
+                    // browser default (disc for ul, decimal for ol) to keep output clean.
+                    var cssStyle = ListNumberingFormatter.GetCssListStyleType(levelDef.NumberFormat);
+                    string defaultStyle = isBullet ? "disc" : "decimal";
+                    if (!string.IsNullOrEmpty(cssStyle) && cssStyle != defaultStyle)
+                    {
+                        styleAttr = $"list-style-type:{cssStyle};";
+                    }
+                }
+                else
+                {
+                    // Fallback: use default bullet/numbering based on level
+                    tag = list.Ordered ? "ol" : "ul";
+                }
+
+                nestingStack.Push(new ListLevelInfo { Tag = tag, Level = currentLevel, LevelDef = levelDef });
+
+                // Open the list tag
+                sb.Append('<').Append(tag);
+                if (!string.IsNullOrEmpty(styleAttr))
+                {
+                    sb.Append(" style=\"").Append(styleAttr).Append('"');
+                }
+
+                // Add start attribute for ordered lists with a custom start value.
+                if (tag == "ol" && levelDef != null && levelDef.StartAt > 1)
+                {
+                    sb.Append(" start=\"").Append(levelDef.StartAt.ToString(CultureInfo.InvariantCulture)).Append('"');
+                }
+
+                sb.Append('>');
+            }
+
+            // Emit the list item
             sb.Append("<li>");
-            foreach (var run in item.Runs) EmitRun(sb, run);
+
+            // For custom numbering formats that CSS doesn't support, prepend the formatted number
+            if (nestingStack.Count > 0)
+            {
+                var currentListInfo = nestingStack.Peek();
+                if (currentListInfo.LevelDef != null)
+                {
+                    var cssStyle = ListNumberingFormatter.GetCssListStyleType(currentListInfo.LevelDef.NumberFormat);
+
+                    // If CSS doesn't support this format (returns null), render custom number
+                    if (cssStyle == null && !ListNumberingFormatter.IsBulletFormat(currentListInfo.LevelDef.NumberFormat))
+                    {
+                        string formattedNum = ListNumberingFormatter.FormatNumber(item.Number, currentListInfo.LevelDef.NumberFormat);
+                        if (!string.IsNullOrEmpty(formattedNum))
+                        {
+                            sb.Append("<span class=\"list-number\">");
+                            AppendEscaped(sb, formattedNum);
+                            sb.Append(". </span>");
+                        }
+                    }
+                    // Bullets are rendered via the <ul>'s CSS list-style-type (disc/circle/square),
+                    // matching how Word and other converters display them. We deliberately do NOT
+                    // emit the raw \leveltext glyph, because it is typically an unmappable
+                    // Symbol/Wingdings code point plus separator markers that would leak as noise
+                    // (e.g. "?;;") in front of every item.
+                }
+            }
+
+            foreach (var run in item.Runs)
+            {
+                EmitRun(sb, run);
+            }
             sb.Append("</li>");
         }
-        while (currentLevel > 0)
+
+        // Close all remaining open lists
+        while (nestingStack.Count > 0)
         {
-            sb.Append("</").Append(tag).Append('>');
-            currentLevel--;
+            var closingInfo = nestingStack.Pop();
+            sb.Append("</").Append(closingInfo.Tag).Append('>');
         }
-        sb.Append("</").Append(tag).Append('>');
+    }
+
+    private sealed class ListLevelInfo
+    {
+        public string Tag { get; set; } = "ul";
+        public int Level { get; set; }
+        public RtfListLevelDefinition? LevelDef { get; set; }
     }
 
     private void EmitTable(StringBuilder sb, RtfTable table)
     {
+        ResolveVerticalMerges(table);
+
         sb.Append("<table style=\"border-collapse:collapse;\">");
 
         // Group leading header rows into a <thead>; the remainder (or all rows if none are
@@ -249,6 +442,60 @@ internal sealed class HtmlEmitter
         sb.Append("</table>");
     }
 
+    private static void ResolveVerticalMerges(RtfTable table)
+    {
+        // For each cell that continues a vertical merge (\clvmrg), find the origin cell in
+        // an earlier row at the same column (matched by right edge, falling back to index),
+        // grow its RowSpan, and mark the continuation cell so it is not rendered.
+        for (int r = 0; r < table.Rows.Count; r++)
+        {
+            var row = table.Rows[r];
+            for (int c = 0; c < row.Cells.Count; c++)
+            {
+                var cell = row.Cells[c];
+                if (!cell.VerticalMergeContinue || cell.SuppressRender)
+                    continue;
+
+                RtfCell? origin = FindMergeOrigin(table, r, c, cell);
+                if (origin != null)
+                {
+                    origin.RowSpan++;
+                    cell.SuppressRender = true;
+                }
+            }
+        }
+    }
+
+    private static RtfCell? FindMergeOrigin(RtfTable table, int rowIndex, int colIndex, RtfCell cont)
+    {
+        for (int r = rowIndex - 1; r >= 0; r--)
+        {
+            var row = table.Rows[r];
+            RtfCell? match = null;
+            if (cont.RightEdgeTwips > 0)
+            {
+                foreach (var candidate in row.Cells)
+                {
+                    if (candidate.RightEdgeTwips == cont.RightEdgeTwips)
+                    {
+                        match = candidate;
+                        break;
+                    }
+                }
+            }
+            if (match == null && colIndex < row.Cells.Count)
+                match = row.Cells[colIndex];
+
+            if (match == null)
+                continue;
+
+            if (match.VerticalMergeContinue && !match.VerticalMergeStart)
+                continue; // keep walking up to the true origin
+            return match;
+        }
+        return null;
+    }
+
     private void EmitTableRow(StringBuilder sb, RtfRow row, bool isHeader)
     {
         var rowStyle = new List<string>(4);
@@ -265,11 +512,15 @@ internal sealed class HtmlEmitter
         string tag = isHeader ? "th" : "td";
         foreach (var cell in row.Cells)
         {
+            if (cell.SuppressRender)
+                continue;
             sb.Append('<').Append(tag).Append(" style=\"");
             AppendCellStyle(sb, cell, row);
             sb.Append('"');
             if (cell.ColSpan > 1)
                 sb.Append(" colspan=\"").Append(cell.ColSpan.ToString(CultureInfo.InvariantCulture)).Append('"');
+            if (cell.RowSpan > 1)
+                sb.Append(" rowspan=\"").Append(cell.RowSpan.ToString(CultureInfo.InvariantCulture)).Append('"');
             sb.Append('>');
             foreach (var block in cell.Blocks)
             {
@@ -373,14 +624,13 @@ internal sealed class HtmlEmitter
         if (fmt.VerticalPosition == VerticalPosition.Superscript) tags.Add("sup");
         if (fmt.VerticalPosition == VerticalPosition.Subscript)   tags.Add("sub");
 
-        string? lang = LcidToBcp47(fmt.LanguageId);
-        bool needSpan = style.Length > 0 || fmt.RightToLeft || lang != null;
+        // lang is set document-wide on <html>; per-span lang is noise for same-language runs.
+        bool needSpan = style.Length > 0 || fmt.RightToLeft;
 
         if (needSpan)
         {
             sb.Append("<span");
             if (fmt.RightToLeft) sb.Append(" dir=\"rtl\"");
-            if (lang != null)    sb.Append(" lang=\"").Append(lang).Append('"');
             if (style.Length > 0) sb.Append(" style=\"").Append(style).Append('"');
             sb.Append('>');
         }
@@ -395,6 +645,63 @@ internal sealed class HtmlEmitter
         for (int i = tags.Count - 1; i >= 0; i--) sb.Append("</").Append(tags[i]).Append('>');
         if (needSpan) sb.Append("</span>");
     }
+
+    /// <summary>
+    /// Merges consecutive <see cref="RtfTextRun"/> entries that share the same <see cref="CharFormat"/>
+    /// into a single run. Non-text runs (images, tabs, line-breaks, …) are passed through unchanged
+    /// and break any merge sequence. This significantly reduces span count in typical Word output.
+    /// </summary>
+    private static IReadOnlyList<RtfRun> MergeRuns(IReadOnlyList<RtfRun> runs)
+    {
+        if (runs.Count <= 1) return runs;
+
+        var result = new List<RtfRun>(runs.Count);
+        RtfTextRun? pending = null;
+
+        foreach (var run in runs)
+        {
+            if (run is RtfTextRun t)
+            {
+                if (pending == null)
+                {
+                    pending = new RtfTextRun { Text = t.Text, Format = t.Format };
+                }
+                else if (CharFormatsEqual(pending.Format, t.Format))
+                {
+                    pending = new RtfTextRun { Text = pending.Text + t.Text, Format = pending.Format };
+                }
+                else
+                {
+                    result.Add(pending);
+                    pending = new RtfTextRun { Text = t.Text, Format = t.Format };
+                }
+            }
+            else
+            {
+                if (pending != null) { result.Add(pending); pending = null; }
+                result.Add(run);
+            }
+        }
+        if (pending != null) result.Add(pending);
+        return result;
+    }
+
+    private static bool CharFormatsEqual(CharFormat a, CharFormat b) =>
+        a.Bold                    == b.Bold
+     && a.Italic                  == b.Italic
+     && a.Underline               == b.Underline
+     && a.Strike                  == b.Strike
+     && a.AllCaps                 == b.AllCaps
+     && a.SmallCaps               == b.SmallCaps
+     && a.Hidden                  == b.Hidden
+     && a.RightToLeft             == b.RightToLeft
+     && a.VerticalPosition        == b.VerticalPosition
+     && a.UnderlineStyle          == b.UnderlineStyle
+     && a.FontSizeHalfPoints      == b.FontSizeHalfPoints
+     && a.FontIndex               == b.FontIndex
+     && a.ForegroundColorIndex    == b.ForegroundColorIndex
+     && a.HighlightColorIndex     == b.HighlightColorIndex
+     && a.BaselineShiftHalfPoints == b.BaselineShiftHalfPoints;
 
     private string BuildParagraphStyle(ParagraphFormat f)
     {
@@ -426,7 +733,7 @@ internal sealed class HtmlEmitter
         }
         if (f.PageBreakBefore) parts.Add("page-break-before:always");
         if (f.KeepTogether)    parts.Add("page-break-inside:avoid");
-        if (f.KeepWithNext)    parts.Add("page-break-after:avoid");
+        // KeepWithNext (\keepn) is a Word print-layout hint; for web HTML it is noise.
 
         // Floating / absolute positioning. Any of these signals the paragraph is a
         // free-floating frame anchored via \posx*/\posy*/reference-frame controls.
@@ -496,16 +803,30 @@ internal sealed class HtmlEmitter
     private string BuildRunStyle(CharFormat f)
     {
         var parts = new List<string>(6);
+
         if (f.FontSizeHalfPoints.HasValue)
-            parts.Add("font-size:" + (f.FontSizeHalfPoints.Value / 2.0).ToString("0.##", CultureInfo.InvariantCulture) + "pt");
+        {
+            string sizePt = (f.FontSizeHalfPoints.Value / 2.0).ToString("0.##", CultureInfo.InvariantCulture) + "pt";
+            if (_bodyFontSizePt == null || sizePt != _bodyFontSizePt)
+                parts.Add("font-size:" + sizePt);
+        }
 
         if (f.FontIndex.HasValue && _doc.Fonts.TryGet(f.FontIndex.Value, out var font) && !string.IsNullOrEmpty(font.Name))
-            parts.Add("font-family:'" + EscapeCssString(font.Name) + "'");
+        {
+            string ff = "'" + EscapeCssString(font.Name) + "'";
+            if (_bodyFontFamily == null || ff != _bodyFontFamily)
+                parts.Add("font-family:" + ff);
+        }
 
         if (f.ForegroundColorIndex.HasValue)
         {
             var c = _doc.Colors.GetOrAuto(f.ForegroundColorIndex.Value);
-            if (!c.IsAuto) parts.Add("color:" + ToCssHex(c));
+            if (!c.IsAuto)
+            {
+                string hex = ToCssHex(c);
+                if (_bodyColorHex == null || hex != _bodyColorHex)
+                    parts.Add("color:" + hex);
+            }
         }
         if (f.HighlightColorIndex.HasValue)
         {
@@ -603,6 +924,20 @@ internal sealed class HtmlEmitter
 
     private static string TwipsToPt(int twips) =>
         (twips / 20.0).ToString("0.##", CultureInfo.InvariantCulture);
+
+    /// <summary>Approximates an RTF tab leader as a CSS baseline border on the spacer span.</summary>
+    private static string TabLeaderCss(TabLeader leader)
+    {
+        switch (leader)
+        {
+            case TabLeader.Dot:       return "border-bottom:1px dotted";
+            case TabLeader.Hyphen:    return "border-bottom:1px dashed";
+            case TabLeader.Underline: return "border-bottom:1px solid";
+            case TabLeader.Thick:     return "border-bottom:2px solid";
+            case TabLeader.Equal:     return "border-bottom:3px double";
+            default:                  return "";
+        }
+    }
 
     private static string ToCssHex(RtfColor c) =>
         "#" + c.R.ToString("x2", CultureInfo.InvariantCulture)

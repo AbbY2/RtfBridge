@@ -15,7 +15,7 @@ namespace RtfBridgeTests;
 public class RtfPhase2Tests
 {
     private static string Convert(string rtf) =>
-        new global::RtfBridge.RtfBridge()
+        new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
 
     // ---------- images ----------
@@ -40,7 +40,7 @@ public class RtfPhase2Tests
     {
         // \wmetafile with empty hex — unsupported vector format.
         var rtf = @"{\rtf1\ansi{\pict\wmetafile8\picw10\pich10 }}";
-        var conv = new global::RtfBridge.RtfBridge();
+        var conv = new global::RtfBridge.RtfBridgeConverter();
         var result = conv.ConvertRtfToHtmlDetailed(rtf, RtfToHtmlOptions.FragmentOnly);
         Assert.Contains("[image]", result.Html);
         Assert.Contains(result.Warnings, w => w.Code == "IMG_UNSUPPORTED");

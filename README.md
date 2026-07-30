@@ -63,17 +63,18 @@ string html = converter.ConvertRtfToHtml(fs, RtfToHtmlOptions.Default);
 | Option | Default | Purpose |
 |---|---|---|
 | `EmitFullDocument` | `true` | Wrap output in `<!DOCTYPE html>…</html>`. |
-| `InlineStyles` | `false` | Force inline `style="…"` (email-safe). |
-| `PreserveListNesting` | `true` | Nest `<ul>`/`<ol>` for `\ilvl` levels. |
+| `InlineStyles` | `false` | Reserved — the emitter currently always uses inline `style="…"` (email-safe). |
+| `PreserveListNesting` | `true` | Nest `<ul>`/`<ol>` for `\ilvl` levels; `false` flattens to one level. |
 | `RenderHeadersFooters` | `false` | Emit `<header>` / `<footer>` sections. |
 | `RenderFootnotesAsList` | `true` | Append `<ol class="footnotes">` at end. |
 | `RenderPageBreaks` | `true` | Emit `<hr style="page-break-after:always">` for `\page`/`\sect`. |
-| `DeterministicOutput` | `true` | Byte-identical HTML for identical input. |
+| `DeterministicOutput` | `true` | Informational — output is always byte-identical for identical input. |
 | `DefaultCodePage` | `1252` | Fallback for `\'hh` when `\ansicpg` is missing. |
-| `Sanitization` | `Basic` | HTML sanitization level. |
+| `Sanitization` | `Basic` | URL policy for hyperlinks: `None` passes everything; `Basic` blocks `javascript:`/`vbscript:`/`data:`/`file:`; `Strict` allows only `http`/`https`/`mailto`/`tel`/`#`. Text is always HTML-encoded. |
 | `MaxImageBytes` | 20 MB | Skip and warn on larger images. |
 | `VectorImageRenderer` | `null` | Plug-in for WMF/EMF (see below). |
 | `RenderHiddenText` | `false` | Emit `\v` hidden runs as `display:none` spans instead of dropping them. |
+| `DecodeHtmlEncapsulation` | `true` | Detect Outlook RTF-encapsulated HTML (`\fromhtml1`) and return the original HTML from `\*\htmltag` destinations. |
 
 Convenience presets: `RtfToHtmlOptions.Default`, `RtfToHtmlOptions.EmailSafe`, `RtfToHtmlOptions.FragmentOnly`.
 
@@ -94,8 +95,11 @@ Convenience presets: `RtfToHtmlOptions.Default`, `RtfToHtmlOptions.EmailSafe`, `
 | Paragraph shading (`\cbpat`) | ✅ CSS `background-color` |
 | Paragraph absolute positioning (`\posx`, `\posy`, `\posxl/c/r/i/o`, `\posyt/c/b`, `\pvpg/\pvmrg/\pvpara`, `\phpg/\phmrg/\phcol`) | ✅ |
 | Baseline shift (`\up`, `\dn`) | ✅ CSS `vertical-align` |
-| Unicode (`\uN?`), hex escapes (`\'hh`), `\binN` | ✅ |
-| Font & color tables | ✅ |
+| Unicode (`\uN?`) incl. surrogate pairs / emoji, hex escapes (`\'hh`), `\binN` | ✅ |
+| Double-byte codepages (Shift-JIS 932, GBK 936, Hangul 949, Big5 950) with paired `\'hh` decoding | ✅ |
+| Per-font charset decoding (`\fcharset` → codepage: Cyrillic, Greek, CJK, Arabic, Hebrew, …) | ✅ |
+| Raw (unescaped) high bytes decoded via the active codepage | ✅ |
+| Font & color tables (braced and unbraced font entries, `\*\falt` ignored) | ✅ |
 | Special characters (`\emdash`, `\bullet`, quotes, spaces, NBSP, soft hyphen, …) | ✅ |
 | Images: PNG, JPEG, DIB (wrapped as BMP), GIF | ✅ inline base64 |
 | Image sizing (`\picwgoal`/`\pichgoal`, `\picw`/`\pich` fallback, `\picscalex`/`\picscaley`) | ✅ |
@@ -103,7 +107,12 @@ Convenience presets: `RtfToHtmlOptions.Default`, `RtfToHtmlOptions.EmailSafe`, `
 | WMF / EMF | ✅ with `RtfBridge.SystemDrawing` (else placeholder + warning) |
 | LibreOffice Symbol-font PUA bullets, shape (`\shp`) pib images, `\shppict`/`\nonshppict` alternates | ✅ |
 | Lists: `\ls`/`\ilvl` with list-table + override resolution | ✅ nested |
+| Legacy lists (`\*\pn` / `\pntext`, WordPad & Word 95 style) | ✅ `<ul>`/`<ol>` |
+| Headings (`\outlinelevelN`, stylesheet "heading N" styles) | ✅ `<h1>`–`<h6>` |
 | Tables: `\trowd`/`\cellx`/`\cell`/`\row`, merged cells | ✅ |
+| Nested tables (`\itap`/`\nestcell`/`\nestrow`) | ⚠️ flattened into the outer cell (no crash, content preserved) |
+| Outlook RTF-encapsulated HTML (`\fromhtml1`, MS-OXRTFEX) | ✅ original HTML extracted |
+| Hyperlink URL sanitization (`javascript:` blocked by default) | ✅ configurable via `Sanitization` |
 | Table rows: header rows (`\trhdr` → `<thead>`/`<th>`), row alignment (`\trql/qc/qr`), row height (`\trrh`), cell padding (`\trpaddl/t/r/b`) | ✅ |
 | Table cells: vertical alignment (`\clvertalt/c/b`), explicit width (`\clwWidth`), shading (`\clcbpat`), per-side borders (`\clbrdrt/r/b/l` with style/width/color) | ✅ |
 | Hyperlinks (`\field HYPERLINK`) | ✅ |
@@ -154,7 +163,7 @@ Given identical input and options, output is byte-for-byte identical across plat
 
 ## Robustness
 
-The parser is fully bounded: malformed RTF (unmatched braces, dangling escapes, truncated `\bin`, huge nesting) never hangs and never throws — it returns best-effort HTML plus warnings. Verified by fuzz tests.
+The parser is fully bounded: malformed RTF (unmatched braces, dangling escapes, truncated `\bin`, huge nesting) never hangs — it returns best-effort HTML plus warnings. Verified by fuzz tests. If an unexpected internal failure does occur, it surfaces as a documented `RtfParseException` (with the original exception as `InnerException`) rather than an arbitrary exception type.
 
 ## Testing
 
@@ -177,7 +186,8 @@ dotnet test
 - ✅ Phase 6 — High-value syntax gap closure: caps/small caps, hidden text, RTL, language, line spacing, underline style variants, keep-together / page-break-before.
 - ✅ Phase 7 — Baseline shift (`\up`/`\dn`), paragraph positioning (`\posx`/`\posy`/named anchors), image wrap (`\shpwr`).
 - ✅ Phase 8 — Table row/cell formatting (header rows, row alignment/height, cell padding/width/vertical-align/shading, per-side cell borders) and paragraph borders + shading (`\brdr*`, `\cbpat`).
-- ⏳ Phase 9 — Tab leaders (`\tqr\tqc\tldot`), tracked-changes (`\revised`, `\deleted`), extended LCID table, CI perf benchmarks + cross-OS golden-file parity.
+- ✅ Phase 9 — Review hardening: emoji/surrogate pairs, DBCS + `\fcharset` codepage decoding, skipped-destination isolation, unbraced font tables, legacy `\*\pn` lists, headings, `\bin` picture payloads, hyperlink URL sanitization, Outlook HTML de-encapsulation, nested-table flattening, `RtfBridgeConverter` rename (old `RtfBridge` class kept as obsolete alias).
+- ⏳ Phase 10 — True nested-table rendering, tab leaders (`\tqr\tqc\tldot`), tracked-changes (`\revised`, `\deleted`), extended LCID table, CI perf benchmarks + cross-OS golden-file parity.
 
 ## License
 

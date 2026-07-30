@@ -24,7 +24,7 @@ public class RtfPhase7Tests
         "890000000A49444154789C63000100000500010D0A2DB40000000049454E44AE426082";
 
     private static string Convert(string rtf) =>
-        new global::RtfBridge.RtfBridge()
+        new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
 
     [Fact]

@@ -18,7 +18,7 @@ namespace RtfBridgeTests;
 public class RtfFuzzTests
 {
     private static string Convert(string rtf) =>
-        new global::RtfBridge.RtfBridge()
+        new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
 
     [Theory]

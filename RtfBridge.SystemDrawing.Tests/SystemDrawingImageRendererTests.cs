@@ -106,7 +106,7 @@ public class SystemDrawingImageRendererTests
             EmitFullDocument = false,
             VectorImageRenderer = new SystemDrawingImageRenderer(),
         };
-        var html = new global::RtfBridge.RtfBridge().ConvertRtfToHtml(rtf, options);
+        var html = new global::RtfBridge.RtfBridgeConverter().ConvertRtfToHtml(rtf, options);
 
         Assert.Contains("<img src=\"data:image/png;base64,", html);
         Assert.DoesNotContain("[image]", html);
@@ -122,7 +122,7 @@ public class SystemDrawingImageRendererTests
         foreach (var b in emf) hex.Append(b.ToString("X2"));
 
         var rtf = @"{\rtf1\ansi{\pict\emfblip\picw40\pich20 " + hex + "}}";
-        var html = new global::RtfBridge.RtfBridge().ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
+        var html = new global::RtfBridge.RtfBridgeConverter().ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
 
         Assert.Contains("[image]", html);
         Assert.DoesNotContain("<img", html);

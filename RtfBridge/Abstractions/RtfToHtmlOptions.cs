@@ -15,10 +15,13 @@ public sealed class RtfToHtmlOptions
     /// <summary>Emit a full <c>&lt;!DOCTYPE html&gt;...&lt;/html&gt;</c> document. When false, only the body content is returned.</summary>
     public bool EmitFullDocument { get; set; } = true;
 
-    /// <summary>Emit CSS as inline <c>style="..."</c> attributes (email-safe) instead of a shared <c>&lt;style&gt;</c> block.</summary>
+    /// <summary>
+    /// Reserved. The current emitter always uses inline <c>style="..."</c> attributes
+    /// (email-safe); a shared <c>&lt;style&gt;</c> block emitter may be added later.
+    /// </summary>
     public bool InlineStyles { get; set; } = false;
 
-    /// <summary>Preserve nested list levels (<c>\lsN \ilvlN</c>) as nested &lt;ul&gt;/&lt;ol&gt;.</summary>
+    /// <summary>Preserve nested list levels (<c>\lsN \ilvlN</c>) as nested &lt;ul&gt;/&lt;ol&gt;. When false, all items are emitted at one level.</summary>
     public bool PreserveListNesting { get; set; } = true;
 
     /// <summary>Emit RTF header/footer destinations as HTML &lt;header&gt;/&lt;footer&gt; elements.</summary>
@@ -30,8 +33,18 @@ public sealed class RtfToHtmlOptions
     /// <summary>Emit <c>\page</c> and <c>\sect</c> as CSS page breaks.</summary>
     public bool RenderPageBreaks { get; set; } = true;
 
-    /// <summary>Guarantee byte-identical HTML output for identical input (stable attribute + CSS ordering).</summary>
+    /// <summary>
+    /// Informational: output is always byte-identical for identical input (stable attribute
+    /// + CSS ordering). Setting this to false does not introduce nondeterminism.
+    /// </summary>
     public bool DeterministicOutput { get; set; } = true;
+
+    /// <summary>
+    /// Detect Outlook RTF-encapsulated HTML (<c>\fromhtml1</c>, MS-OXRTFEX) and return the
+    /// original HTML extracted from <c>\*\htmltag</c> destinations instead of re-rendering
+    /// the RTF fallback. Default true.
+    /// </summary>
+    public bool DecodeHtmlEncapsulation { get; set; } = true;
 
     /// <summary>ANSI code page used to decode <c>\'hh</c> escapes when the RTF does not specify <c>\ansicpg</c>. Default 1252.</summary>
     public int DefaultCodePage { get; set; } = 1252;

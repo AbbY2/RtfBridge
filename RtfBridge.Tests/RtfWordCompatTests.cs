@@ -21,7 +21,7 @@ public class RtfWordCompatTests
 
     private string Convert(string rtf)
     {
-        var html = new global::RtfBridge.RtfBridge()
+        var html = new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
         _out.WriteLine(html);
         return html;

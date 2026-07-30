@@ -15,7 +15,7 @@ namespace RtfBridgeTests;
 public class RtfPhase4FieldTests
 {
     private static string Convert(string rtf) =>
-        new global::RtfBridge.RtfBridge()
+        new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
 
     [Fact]

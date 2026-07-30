@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Product:   RtfBridge
 // File:      RtfRun.cs
 // Author:    Amit Tiwari
@@ -25,7 +25,17 @@ internal sealed class RtfTextRun : RtfRun
 internal sealed class RtfLineBreak : RtfRun { }
 
 /// <summary>A tab character.</summary>
-internal sealed class RtfTab : RtfRun { }
+internal sealed class RtfTab : RtfRun
+{
+    /// <summary>
+    /// Resolved advance width in twips when this tab lands on a defined tab stop; 0 when it
+    /// falls back to a default tab (rendered as an em-space).
+    /// </summary>
+    public int WidthTwips { get; set; }
+
+    /// <summary>Leader fill for the resolved tab stop (\tldot etc.).</summary>
+    public TabLeader Leader { get; set; } = TabLeader.None;
+}
 
 /// <summary>An embedded image (from a \pict destination).</summary>
 internal sealed class RtfImageRun : RtfRun

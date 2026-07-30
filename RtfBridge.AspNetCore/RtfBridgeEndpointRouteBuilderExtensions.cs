@@ -60,6 +60,8 @@ public static class RtfBridgeEndpointRouteBuilderExtensions
             Sanitization = baseOptions.Sanitization,
             VectorImageRenderer = baseOptions.VectorImageRenderer,
             MaxImageBytes = baseOptions.MaxImageBytes,
+            RenderHiddenText = baseOptions.RenderHiddenText,
+            DecodeHtmlEncapsulation = baseOptions.DecodeHtmlEncapsulation,
         };
         if (context.Request.Query.TryGetValue("fullDocument", out var flag)
             && bool.TryParse(flag, out var full))

@@ -1,0 +1,33 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vsidx
+
+# Rider / VS Code
+.idea/
+*.DotSettings.user
+
+# Test / coverage results
+TestResults/
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Scratch files
+_dbg.txt
+_files.txt
+_matches.txt

@@ -19,7 +19,7 @@ namespace RtfBridgeTests;
 public class RtfPhase8Tests
 {
     private static string Convert(string rtf) =>
-        new global::RtfBridge.RtfBridge()
+        new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
 
     // ---- header row + row alignment ------------------------------------------------

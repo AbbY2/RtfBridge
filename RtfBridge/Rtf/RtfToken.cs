@@ -38,12 +38,16 @@ internal readonly struct RtfToken
     /// <summary>Byte offset in the source where this token started.</summary>
     public int Position { get; }
 
-    public RtfToken(RtfTokenType type, string value, int? parameter, int position)
+    /// <summary>Raw binary payload for <c>\binN</c> control words (null otherwise).</summary>
+    public byte[]? BinaryData { get; }
+
+    public RtfToken(RtfTokenType type, string value, int? parameter, int position, byte[]? binaryData = null)
     {
         Type = type;
         Value = value;
         Parameter = parameter;
         Position = position;
+        BinaryData = binaryData;
     }
 
     public override string ToString() =>

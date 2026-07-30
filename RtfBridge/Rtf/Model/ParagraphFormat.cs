@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Product:   RtfBridge
 // File:      ParagraphFormat.cs
 // Author:    Amit Tiwari
@@ -75,11 +75,17 @@ internal sealed class ParagraphFormat
     /// <summary>Paragraph background shading color-table index (\cbpat). Null = none.</summary>
     public int? BackgroundColorIndex { get; set; }
 
+    /// <summary>Outline level 0..8 (\outlinelevelN or a "heading N" stylesheet style). Null = body text. 0..5 emit &lt;h1&gt;..&lt;h6&gt;.</summary>
+    public int? OutlineLevel { get; set; }
+
     /// <summary>Paragraph borders (\brdrt/\brdrb/\brdrl/\brdrr, applied via \brdrbox).</summary>
     public BorderSide BorderTop    { get; set; } = new BorderSide();
     public BorderSide BorderRight  { get; set; } = new BorderSide();
     public BorderSide BorderBottom { get; set; } = new BorderSide();
     public BorderSide BorderLeft   { get; set; } = new BorderSide();
+
+    /// <summary>Custom tab stops (\txN) in document order, with alignment and leaders.</summary>
+    public System.Collections.Generic.List<TabStop> TabStops { get; set; } = new System.Collections.Generic.List<TabStop>();
 
     public ParagraphFormat Clone() => new ParagraphFormat
     {
@@ -103,10 +109,12 @@ internal sealed class ParagraphFormat
         HorizontalReference = HorizontalReference,
         VerticalReference = VerticalReference,
         BackgroundColorIndex = BackgroundColorIndex,
+        OutlineLevel = OutlineLevel,
         BorderTop    = BorderTop.Clone(),
         BorderRight  = BorderRight.Clone(),
         BorderBottom = BorderBottom.Clone(),
         BorderLeft   = BorderLeft.Clone(),
+        TabStops     = TabStops.ConvertAll(t => t.Clone()),
     };
 }
 

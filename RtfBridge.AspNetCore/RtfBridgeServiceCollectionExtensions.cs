@@ -34,7 +34,7 @@ public static class RtfBridgeServiceCollectionExtensions
         configure?.Invoke(options);
 
         services.TryAddSingleton(options);
-        services.TryAddSingleton<IRtfBridgeConverter, RtfBridge>();
+        services.TryAddSingleton<IRtfBridgeConverter, RtfBridgeConverter>();
         return services;
     }
 }

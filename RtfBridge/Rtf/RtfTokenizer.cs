@@ -99,14 +99,18 @@ internal sealed class RtfTokenizer
 
             string cw = name.ToString();
 
-            // \binN — the next N bytes are raw binary payload and must be skipped
-            // (they must not be re-tokenized as text/control content).
+            // \binN — the next N bytes are a raw binary payload. Capture them on the token
+            // (consumers like PictParser use them); they must not be re-tokenized as
+            // text/control content.
             if (cw == "bin" && parameter.HasValue && parameter.Value > 0)
             {
-                int skip = parameter.Value;
+                int take = parameter.Value;
                 int available = _data.Length - _pos;
-                if (skip > available) skip = available;
-                _pos += skip;
+                if (take > available) take = available;
+                var payload = new byte[take];
+                Array.Copy(_data, _pos, payload, 0, take);
+                _pos += take;
+                return new RtfToken(RtfTokenType.ControlWord, cw, parameter, start, payload);
             }
 
             return new RtfToken(RtfTokenType.ControlWord, cw, parameter, start);

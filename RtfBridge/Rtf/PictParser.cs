@@ -15,9 +15,8 @@ using RtfBridge.Rtf.Model;
 namespace RtfBridge.Rtf;
 
 /// <summary>
-/// Parses the body of a <c>\pict</c> destination: consumes text tokens as hex nibbles
-/// (or a preceding <c>\binN</c> raw payload; those bytes are already skipped by the
-/// tokenizer, so here we only see hex-encoded payloads) and sniffs the image format.
+/// Parses the body of a <c>\pict</c> destination: consumes text tokens as hex nibbles,
+/// or a <c>\binN</c> raw payload captured by the tokenizer, and sniffs the image format.
 /// </summary>
 internal static class PictParser
 {
@@ -57,6 +56,7 @@ internal static class PictParser
     {
         var info = new PictInfo();
         var hex = new StringBuilder();
+        byte[]? binPayload = null;
         bool tooLarge = false;
         int approxHalfBytes = 0;
         int maxHalfBytes = options.MaxImageBytes * 2; // 2 hex chars per byte
@@ -75,6 +75,13 @@ internal static class PictParser
                 case RtfTokenType.ControlWord:
                     switch (t.Value)
                     {
+                        case "bin":
+                            if (t.BinaryData != null)
+                            {
+                                if (t.BinaryData.Length > options.MaxImageBytes) tooLarge = true;
+                                else binPayload = t.BinaryData;
+                            }
+                            break;
                         case "pngblip":    info.Kind = PictKind.Png; break;
                         case "jpegblip":   info.Kind = PictKind.Jpeg; break;
                         case "emfblip":    info.Kind = PictKind.EmfBlip; break;
@@ -91,7 +98,11 @@ internal static class PictParser
                     }
                     break;
                 case RtfTokenType.Text:
-                    if (!tooLarge)
+                    // Only the hex stream at the top level of \pict (depth == 1) is image data.
+                    // Text inside sub-groups (\*\picprop, \*\blipuid, \sp, …) is metadata and
+                    // must be ignored — their property names contain valid hex digits that would
+                    // silently corrupt the pixel data if accumulated.
+                    if (!tooLarge && depth == 1)
                     {
                         foreach (char c in t.Value)
                         {
@@ -115,7 +126,7 @@ internal static class PictParser
             return new RtfImageRun { IsPlaceholder = true };
         }
 
-        byte[] bytes = HexToBytes(hex);
+        byte[] bytes = binPayload ?? HexToBytes(hex);
 
         // Sniff magic bytes for PNG/JPEG/BMP regardless of the declared blip flag — some producers lie.
         string sniffed = SniffMediaType(bytes);

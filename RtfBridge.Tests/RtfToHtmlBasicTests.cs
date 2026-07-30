@@ -15,7 +15,7 @@ namespace RtfBridgeTests;
 public class RtfToHtmlBasicTests
 {
     private static string Convert(string rtf) =>
-        new global::RtfBridge.RtfBridge()
+        new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, RtfToHtmlOptions.FragmentOnly);
 
     [Fact]
@@ -134,7 +134,7 @@ public class RtfToHtmlBasicTests
     public void ConversionIsDeterministic_ByteIdenticalAcrossRuns()
     {
         var rtf = @"{\rtf1\ansi{\colortbl ;\red10\green20\blue30;}\cf1\b\i\fs28 hello\par world}";
-        var conv = new global::RtfBridge.RtfBridge();
+        var conv = new global::RtfBridge.RtfBridgeConverter();
         var a = conv.ConvertRtfToHtml(rtf);
         var b = conv.ConvertRtfToHtml(rtf);
         Assert.Equal(a, b);
@@ -153,7 +153,7 @@ public class RtfToHtmlBasicTests
     [Fact]
     public void FullDocumentMode_WrapsInHtmlAndBody()
     {
-        var html = new global::RtfBridge.RtfBridge()
+        var html = new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(@"{\rtf1\ansi hi}");
         Assert.StartsWith("<!DOCTYPE html>", html);
         Assert.Contains("<body>", html);

@@ -25,7 +25,7 @@ public class RtfFeatureCoverageTests
 
     private string Convert(string rtf, RtfToHtmlOptions? options = null)
     {
-        var html = new global::RtfBridge.RtfBridge()
+        var html = new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, options ?? RtfToHtmlOptions.FragmentOnly);
         _out.WriteLine(html);
         return html;
@@ -75,9 +75,12 @@ public class RtfFeatureCoverageTests
     [Fact]
     public void LanguageId_MapsToBcp47LangAttribute()
     {
-        // 1036 = fr-FR
-        var html = Convert(@"{\rtf1\ansi\lang1036 bonjour\par}");
+        // \deflang1036 (fr-FR) must set lang="fr-FR" on the <html> element when EmitFullDocument=true.
+        // Per-run \lang is no longer emitted as per-span lang (it was noise for web HTML).
+        var opts = new RtfToHtmlOptions { EmitFullDocument = true };
+        var html = Convert(@"{\rtf1\ansi\deflang1036 bonjour\par}", opts);
         Assert.Contains("lang=\"fr-FR\"", html);
+        Assert.Contains("bonjour", html);
     }
 
     [Fact]

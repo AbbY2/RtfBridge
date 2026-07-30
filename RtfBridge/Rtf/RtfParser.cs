@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Product:   RtfBridge
 // File:      RtfParser.cs
 // Author:    Amit Tiwari
@@ -9,6 +9,7 @@
 // ============================================================================
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using RtfBridge.Rtf.Model;
 
@@ -51,10 +52,30 @@ internal sealed class RtfParser
     // In-progress hyperlink field state.
     private FieldState? _fieldState;
 
+    // When ReadRunsIntoDestination is active, AddBlock routes here instead of _doc.Body
+    // so that \par flushes inside headers/footers/footnotes don't pollute the body.
+    private List<RtfBlock>? _destinationSink;
+
     // When a \shppict group has been consumed, remember the parent stack depth so we can
     // skip its sibling \nonshppict alternative (LibreOffice/Word emit both; we prefer the
     // modern PNG/JPEG variant carried by \shppict).
     private int? _shppictSeenAtDepth;
+
+    // Bytes accumulated from raw text and \'hh escapes, decoded together on flush so that
+    // double-byte codepages (932/936/949/950) and font-charset overrides work correctly.
+    private readonly List<byte> _pendingBytes = new List<byte>();
+
+    // High surrogate from a preceding \uN awaiting its low half (Word emits emoji as
+    // \uHI?\uLO? UTF-16 pairs).
+    private char? _pendingHighSurrogate;
+
+    // Style index -> outline level (0-based) discovered in the stylesheet ("heading N" names
+    // or explicit \outlinelevel inside the style definition).
+    private readonly Dictionary<int, int> _styleOutlineLevels = new Dictionary<int, int>();
+
+    // Style index -> captured formatting deltas from the \stylesheet, applied when a
+    // paragraph references the style via \sN.
+    private readonly Dictionary<int, RtfStyleDefinition> _styles = new Dictionary<int, RtfStyleDefinition>();
 
     public IReadOnlyList<RtfConversionWarning> Warnings => _warnings;
 
@@ -96,19 +117,18 @@ internal sealed class RtfParser
                     break;
 
                 case RtfTokenType.Text:
-                    if (!_state.SkipDestination)
-                    {
-                        AppendText(tok.Value);
-                    }
+                    AppendTextBytes(tok.Value);
                     break;
 
                 case RtfTokenType.Eof:
+                    FlushPendingBytes();
                     FlushParagraph(forceEmit: false);
                     CollapseListParagraphs();
                     return _doc;
             }
         }
 
+        FlushPendingBytes();
         FlushParagraph(forceEmit: false);
         CollapseListParagraphs();
         return _doc;
@@ -118,20 +138,99 @@ internal sealed class RtfParser
 
     private void PushGroup()
     {
+        FlushPendingBytes();
         _stack.Push(_state);
         _state = _state.Clone();
     }
 
     private void PopGroup()
     {
+        FlushPendingBytes();
         if (_stack.Count == 0) return;
         _state = _stack.Pop();
     }
 
     // ---------------- text emission ----------------
 
+    /// <summary>
+    /// Queues raw text bytes (tokenizer text is a 1:1 byte-to-char mapping) for codepage
+    /// decoding. Bytes are flushed together so multi-byte (DBCS/CJK) sequences decode intact.
+    /// </summary>
+    private void AppendTextBytes(string latin1)
+    {
+        if (_state.SkipDestination || latin1.Length == 0) return;
+        for (int i = 0; i < latin1.Length; i++)
+        {
+            _pendingBytes.Add((byte)latin1[i]);
+        }
+    }
+
+    /// <summary>Decodes all queued bytes with the active codepage and emits them as text.</summary>
+    private void FlushPendingBytes()
+    {
+        if (_pendingBytes.Count == 0) return;
+        byte[] raw = _pendingBytes.ToArray();
+        _pendingBytes.Clear();
+
+        string decoded;
+        try
+        {
+            decoded = EncodingBootstrap.GetEncoding(ActiveCodePage()).GetString(raw);
+        }
+        catch (Exception ex)
+        {
+            _warnings.Add(new RtfConversionWarning("ENC_FALLBACK",
+                $"Failed to decode text using codepage {ActiveCodePage()}: {ex.Message}"));
+            var sb = new StringBuilder(raw.Length);
+            foreach (byte b in raw) sb.Append((char)b);
+            decoded = sb.ToString();
+        }
+        AppendText(decoded);
+    }
+
+    /// <summary>
+    /// Codepage used to decode text bytes: the active font's charset codepage when one is
+    /// declared (\fcharset), otherwise the document ANSI codepage.
+    /// </summary>
+    private int ActiveCodePage()
+    {
+        int fontIdx = _state.CharFormat.FontIndex ?? _doc.DefaultFontIndex;
+        var font = _doc.Fonts.Get(fontIdx);
+        if (font != null)
+        {
+            int? cp = CharsetToCodePage(font.CharSet);
+            if (cp.HasValue) return cp.Value;
+        }
+        return _doc.AnsiCodePage;
+    }
+
+    // Windows charset byte (\fcharsetN) -> codepage. Null = use document default
+    // (ANSI_CHARSET / DEFAULT_CHARSET / SYMBOL_CHARSET fall back to the document codepage).
+    private static int? CharsetToCodePage(int charset) => charset switch
+    {
+        77  => 10000, // Mac Roman
+        128 => 932,   // Shift-JIS
+        129 => 949,   // Korean (Hangul)
+        130 => 1361,  // Korean (Johab)
+        134 => 936,   // Simplified Chinese (GBK)
+        136 => 950,   // Traditional Chinese (Big5)
+        161 => 1253,  // Greek
+        162 => 1254,  // Turkish
+        163 => 1258,  // Vietnamese
+        177 => 1255,  // Hebrew
+        178 => 1256,  // Arabic
+        186 => 1257,  // Baltic
+        204 => 1251,  // Cyrillic
+        222 => 874,   // Thai
+        238 => 1250,  // Central European
+        254 => 437,   // OEM US
+        255 => 850,   // OEM Latin-1
+        _   => null,
+    };
+
     private void AppendText(string text)
     {
+        if (_state.SkipDestination) return;
         if (text.Length == 0) return;
 
         // Drop hidden text (\v) unless the caller explicitly opted in.
@@ -198,14 +297,15 @@ internal sealed class RtfParser
 
     // Maps well-known Symbol/Wingdings PUA codepoints to their Unicode equivalents so bullets
     // and common dingbats render even outside their proprietary fonts. Everything else in the
-    // PUA range is passed through unchanged.
+    // PUA range is passed through unchanged. Mapping is delegated to the centralized
+    // RtfSymbolLibrary so all symbol knowledge lives in one place.
     private static string RemapSymbolFontText(string text)
     {
         StringBuilder? sb = null;
         for (int i = 0; i < text.Length; i++)
         {
             char c = text[i];
-            char? mapped = MapSymbolPuaChar(c);
+            char? mapped = RtfSymbolLibrary.MapSymbolFontChar(c);
             if (mapped.HasValue)
             {
                 if (sb == null) { sb = new StringBuilder(text.Length); sb.Append(text, 0, i); }
@@ -219,34 +319,15 @@ internal sealed class RtfParser
         return sb == null ? text : sb.ToString();
     }
 
-    private static char? MapSymbolPuaChar(char c)
-    {
-        // Common Symbol-font PUA codepoints used by LibreOffice/Word for bullets and math.
-        switch ((int)c)
-        {
-            case 0xF0B7: return '\u2022'; // • bullet (Symbol)
-            case 0xF0A7: return '\u25AA'; // ▪ black small square (Symbol filled square)
-            case 0xF0A8: return '\u25E6'; // ◦ white bullet (Symbol open bullet)
-            case 0xF0A6: return '\u2666'; // ♦ diamond
-            case 0xF0D8: return '\u2192'; // → right arrow
-            case 0xF0DC: return '\u2190'; // ← left arrow
-            case 0xF0AE: return '\u2192'; // → right arrow (alt)
-            case 0xF0FC: return '\u2713'; // ✓ check mark (Wingdings)
-            case 0xF0FE: return '\u2717'; // ✗ ballot X (Wingdings)
-            case 0xF0A0: return '\u00A0'; // nbsp
-            // Also map the plain ASCII Symbol-font bullet glyph position (0xB7) to • so that
-            // bullet code points delivered as \'b7 in a Symbol run render correctly.
-            case 0x00B7: return '\u2022';
-        }
-        return null;
-    }
-
     // ---------------- control words ----------------
 
     private void HandleControlWord(RtfToken tok)
     {
         string cw = tok.Value;
         int? param = tok.Parameter;
+
+        // Emit any buffered text bytes before formatting/structure can change.
+        FlushPendingBytes();
 
         // Destination-changing / optional-destination handling
         if (_nextIsOptionalDestination)
@@ -257,6 +338,14 @@ internal sealed class RtfParser
                 _state.SkipDestination = true;
                 return;
             }
+        }
+
+        // Inside a skipped destination nothing may produce output or mutate document
+        // structure (\par, \emdash, \trowd, ... would otherwise leak). Only \uc still
+        // matters because it is group-scoped state that costs nothing to track.
+        if (_state.SkipDestination && cw != "uc")
+        {
+            return;
         }
 
         switch (cw)
@@ -272,6 +361,9 @@ internal sealed class RtfParser
                 break;
             case "deff":
                 if (param.HasValue) _doc.DefaultFontIndex = param.Value;
+                break;
+            case "deflang":
+                if (param.HasValue) _doc.DefaultLanguageId = param.Value;
                 break;
             case "uc":
                 _unicodeSkipCount = param ?? 1;
@@ -335,6 +427,10 @@ internal sealed class RtfParser
                 // Auto-generated bullet/number text — skip; we render our own bullets.
                 _state.SkipDestination = true;
                 break;
+            case "pn":
+                // Legacy (Word 95 / WordPad) paragraph numbering: {\*\pn\pnlvlblt ...}.
+                HandleLegacyPn();
+                break;
 
             // ---------- table row/cell ----------
             case "trowd":
@@ -349,12 +445,25 @@ internal sealed class RtfParser
             case "clmrg":
                 MarkCellMergeContinuation();
                 break;
+            case "clvmgf":
+                MarkCellVMergeStart();
+                break;
+            case "clvmrg":
+                MarkCellVMergeContinuation();
+                break;
             case "cell":
                 CloseCell();
                 break;
             case "row":
-            case "nestrow":
                 CloseRow();
+                break;
+            case "nestcell":
+                // Nested tables are flattened: each nested cell becomes a paragraph inside
+                // the outer cell so no content is lost.
+                FlushParagraph(forceEmit: true);
+                break;
+            case "nestrow":
+                // End of a flattened nested row — nothing to close at the outer level.
                 break;
             case "intbl":
                 _state.InTable = true;
@@ -442,6 +551,8 @@ internal sealed class RtfParser
                 break;
 
             case "stylesheet":
+                ParseStylesheet();
+                break;
             case "info":
             case "revtbl":
             case "rsidtbl":
@@ -554,8 +665,28 @@ internal sealed class RtfParser
                 _state.ListId = null;
                 _state.ListLevel = 0;
                 _state.InTable = false;
+                _state.LegacyListOrdered = null;
                 _paraBorderTarget = BorderTarget.None;
                 _paraBoxMode = false;
+                _pendingTabAlignment = TabAlignment.Left;
+                _pendingTabLeader = TabLeader.None;
+                break;
+            case "s":
+                // Paragraph style reference. Overlay the style's captured formatting (and its
+                // \sbasedon chain) onto the current state; explicit control words that follow
+                // still override. If the stylesheet declared this style as a heading
+                // ("heading N" name or \outlinelevel), carry the level over.
+                if (param.HasValue)
+                {
+                    ApplyStyle(param.Value);
+                    if (_styleOutlineLevels.TryGetValue(param.Value, out int styleLevel))
+                        _state.ParagraphFormat.OutlineLevel = styleLevel;
+                }
+                break;
+            case "outlinelevel":
+                // 0..8; only 0..5 map to <h1>..<h6>. 9 means "body text".
+                if (param.HasValue && param.Value >= 0 && param.Value <= 8)
+                    _state.ParagraphFormat.OutlineLevel = param.Value;
                 break;
             case "ql": _state.ParagraphFormat.Alignment = TextAlignment.Left;    break;
             case "qc": _state.ParagraphFormat.Alignment = TextAlignment.Center;  break;
@@ -607,6 +738,30 @@ internal sealed class RtfParser
                 // Recognised but not represented in HTML output.
                 break;
 
+            // ---------- tab stops ----------
+            case "tql": _pendingTabAlignment = TabAlignment.Left;    break;
+            case "tqr": _pendingTabAlignment = TabAlignment.Right;   break;
+            case "tqc": _pendingTabAlignment = TabAlignment.Center;  break;
+            case "tqdec": _pendingTabAlignment = TabAlignment.Decimal; break;
+            case "tldot": _pendingTabLeader = TabLeader.Dot;       break;
+            case "tlhyph": _pendingTabLeader = TabLeader.Hyphen;   break;
+            case "tlul": _pendingTabLeader = TabLeader.Underline;  break;
+            case "tlth": _pendingTabLeader = TabLeader.Thick;      break;
+            case "tleq": _pendingTabLeader = TabLeader.Equal;      break;
+            case "tx":
+                if (param.HasValue)
+                {
+                    _state.ParagraphFormat.TabStops.Add(new TabStop
+                    {
+                        PositionTwips = param.Value,
+                        Alignment = _pendingTabAlignment,
+                        Leader = _pendingTabLeader,
+                    });
+                }
+                _pendingTabAlignment = TabAlignment.Left;
+                _pendingTabLeader = TabLeader.None;
+                break;
+
             case "par":
                 FlushParagraph(forceEmit: true);
                 break;
@@ -616,7 +771,12 @@ internal sealed class RtfParser
                 break;
 
             case "tab":
-                if (!_state.SkipDestination) _paragraph.Runs.Add(new RtfTab { Format = _state.CharFormat.Clone() });
+                if (!_state.SkipDestination)
+                {
+                    var tab = new RtfTab { Format = _state.CharFormat.Clone() };
+                    ResolveTab(tab);
+                    _paragraph.Runs.Add(tab);
+                }
                 break;
 
             // ---------- unicode ----------
@@ -635,20 +795,6 @@ internal sealed class RtfParser
                 break;
 
             // ---------- special char control words ----------
-            case "emdash":     AppendText("\u2014"); break;
-            case "endash":     AppendText("\u2013"); break;
-            case "emspace":    AppendText("\u2003"); break;
-            case "enspace":    AppendText("\u2002"); break;
-            case "qmspace":    AppendText("\u2005"); break;
-            case "bullet":     AppendText("\u2022"); break;
-            case "lquote":     AppendText("\u2018"); break;
-            case "rquote":     AppendText("\u2019"); break;
-            case "ldblquote":  AppendText("\u201C"); break;
-            case "rdblquote":  AppendText("\u201D"); break;
-            case "zwj":        AppendText("\u200D"); break;
-            case "zwnj":       AppendText("\u200C"); break;
-            case "ltrmark":    AppendText("\u200E"); break;
-            case "rtlmark":    AppendText("\u200F"); break;
             case "chdate":
             case "chtime":
             case "chpgn":
@@ -657,29 +803,37 @@ internal sealed class RtfParser
                 break;
 
             default:
-                // Unknown control word — no-op. This is safe per the RTF spec.
+                // Text-producing symbol control words (\bullet, \emdash, smart quotes, ...)
+                // are resolved through the centralized RtfSymbolLibrary so legacy Word and
+                // WordPad output is handled uniformly. Anything unrecognised is a safe no-op
+                // per the RTF spec.
+                if (RtfSymbolLibrary.TryGetControlWordSymbol(cw, out string symbolText))
+                {
+                    AppendText(symbolText);
+                }
                 break;
         }
     }
 
     private void HandleControlSymbol(RtfToken tok)
     {
+        // \'hh contributes a raw byte to the pending buffer (so DBCS pairs stay together);
+        // every other symbol is a boundary that must flush buffered bytes first.
+        if (tok.Value == "'")
+        {
+            if (tok.Parameter.HasValue && !_state.SkipDestination)
+            {
+                _pendingBytes.Add((byte)tok.Parameter.Value);
+            }
+            return;
+        }
+
+        FlushPendingBytes();
+
         switch (tok.Value)
         {
             case "*":
                 _nextIsOptionalDestination = true;
-                break;
-            case "\\": AppendText("\\"); break;
-            case "{":  AppendText("{");  break;
-            case "}":  AppendText("}");  break;
-            case "~":  AppendText("\u00A0"); break; // non-breaking space
-            case "-":  AppendText("\u00AD"); break; // optional (soft) hyphen
-            case "_":  AppendText("\u2011"); break; // non-breaking hyphen
-            case "'":
-                if (tok.Parameter.HasValue && !_state.SkipDestination)
-                {
-                    DecodeAnsiByte((byte)tok.Parameter.Value);
-                }
                 break;
             case "\n":
             case "\r":
@@ -689,24 +843,14 @@ internal sealed class RtfParser
                 }
                 break;
             default:
-                // Ignore unknown control symbols.
+                // Text-producing control symbols (\\, \{, \}, \~, \-, \_) are resolved through
+                // the centralized RtfSymbolLibrary. Unknown symbols are ignored.
+                if (tok.Value.Length == 1 &&
+                    RtfSymbolLibrary.TryGetControlSymbol(tok.Value[0], out string symbolText))
+                {
+                    AppendText(symbolText);
+                }
                 break;
-        }
-    }
-
-    private void DecodeAnsiByte(byte b)
-    {
-        try
-        {
-            var enc = EncodingBootstrap.GetEncoding(_doc.AnsiCodePage);
-            string s = enc.GetString(new[] { b });
-            AppendText(s);
-        }
-        catch (Exception ex)
-        {
-            _warnings.Add(new RtfConversionWarning("ENC_FALLBACK",
-                $"Failed to decode byte 0x{b:X2} using codepage {_doc.AnsiCodePage}: {ex.Message}"));
-            AppendText(((char)b).ToString());
         }
     }
 
@@ -717,6 +861,28 @@ internal sealed class RtfParser
         // Negative values represent unsigned via 16-bit wrap-around per spec.
         if (codePoint < 0) codePoint += 0x10000;
 
+        // Word encodes non-BMP characters (emoji, ...) as two \uN escapes carrying the
+        // UTF-16 surrogate halves. char.ConvertFromUtf32 rejects surrogate values, so pair
+        // them up manually.
+        if (codePoint >= 0xD800 && codePoint <= 0xDBFF)
+        {
+            _pendingHighSurrogate = (char)codePoint;
+            SkipUnicodeFallback();
+            return;
+        }
+        if (codePoint >= 0xDC00 && codePoint <= 0xDFFF)
+        {
+            if (_pendingHighSurrogate.HasValue)
+            {
+                AppendText(new string(new[] { _pendingHighSurrogate.Value, (char)codePoint }));
+                _pendingHighSurrogate = null;
+            }
+            // A lone low surrogate is malformed \u2014 drop it.
+            SkipUnicodeFallback();
+            return;
+        }
+
+        _pendingHighSurrogate = null; // unpaired high surrogate \u2014 drop it
         if (codePoint >= 0 && codePoint <= 0xFFFF)
         {
             AppendText(char.ConvertFromUtf32(codePoint));
@@ -761,11 +927,24 @@ internal sealed class RtfParser
 
     private void ParseFontTable()
     {
-        // We're positioned right after \fonttbl inside its group.
-        // Read until matching close of the current group.
+        // We're positioned right after \fonttbl inside its group. Two legal shapes:
+        //   {\fonttbl{\f0\fswiss Arial;}{\f1\froman Times;}}   (braced entries)
+        //   {\fonttbl\f0\fswiss Arial;\f1\froman Times;}       (unbraced entries)
+        // Entries are terminated by ';'. Name text is only taken at the entry's own depth
+        // so nested groups like {\*\falt Helvetica} don't pollute the font name.
         int depth = 1;
         RtfFont? current = null;
+        int fontDepth = -1;
         var name = new StringBuilder();
+
+        void Commit()
+        {
+            if (current == null) return;
+            current.Name = name.ToString().TrimEnd(';').Trim();
+            _doc.Fonts.Set(current.Index, current);
+            current = null;
+            name.Clear();
+        }
 
         while (_index < _tokens.Count && depth > 0)
         {
@@ -774,29 +953,34 @@ internal sealed class RtfParser
             {
                 case RtfTokenType.GroupStart:
                     depth++;
-                    if (depth == 2) { current = new RtfFont(); name.Clear(); }
                     break;
                 case RtfTokenType.GroupEnd:
                     depth--;
-                    if (depth == 1 && current != null)
-                    {
-                        current.Name = name.ToString().TrimEnd(';').Trim();
-                        _doc.Fonts.Set(current.Index, current);
-                        current = null;
-                    }
+                    if (current != null && depth < fontDepth) Commit();
                     if (depth == 0) return;
                     break;
                 case RtfTokenType.ControlWord:
-                    if (current == null) break;
                     switch (t.Value)
                     {
-                        case "f":       if (t.Parameter.HasValue) current.Index = t.Parameter.Value; break;
-                        case "fcharset": current.CharSet = t.Parameter ?? 0; break;
-                        case "fprq":     current.PitchAndFamily = t.Parameter ?? 0; break;
+                        case "f":
+                            if (t.Parameter.HasValue)
+                            {
+                                // \f starts a new entry in both shapes.
+                                if (current != null) Commit();
+                                current = new RtfFont { Index = t.Parameter.Value };
+                                fontDepth = depth;
+                            }
+                            break;
+                        case "fcharset": if (current != null) current.CharSet = t.Parameter ?? 0; break;
+                        case "fprq":     if (current != null) current.PitchAndFamily = t.Parameter ?? 0; break;
                     }
                     break;
                 case RtfTokenType.Text:
-                    if (current != null) name.Append(t.Value);
+                    foreach (char ch in t.Value)
+                    {
+                        if (ch == ';') Commit();
+                        else if (current != null && depth == fontDepth) name.Append(ch);
+                    }
                     break;
             }
         }
@@ -841,15 +1025,253 @@ internal sealed class RtfParser
         }
     }
 
+    // ---------------- stylesheet ----------------
+
+    private void ParseStylesheet()
+    {
+        // We're positioned inside the \stylesheet group. Each entry is {\sN ... Style Name;}.
+        // We extract heading info and also capture \s0 (Normal/Default style) properties:
+        // font (\f), size (\fs), foreground color (\cf), and language (\lang) — used by the
+        // HTML emitter to emit body defaults so individual spans can omit those properties.
+        int depth = 1;
+        int? styleIndex = null;
+        int? outline = null;
+        int? styleFont = null;
+        int? styleFs = null;
+        int? styleCf = null;
+        int? styleLang = null;
+        var name = new StringBuilder();
+        var def = new RtfStyleDefinition();
+
+        void Commit()
+        {
+            if (styleIndex.HasValue)
+            {
+                // Store the captured formatting deltas so \sN can apply them later.
+                def.Index = styleIndex.Value;
+                if (outline.HasValue && outline.Value >= 0 && outline.Value <= 8)
+                    def.OutlineLevel = outline.Value;
+                _styles[styleIndex.Value] = def;
+
+                // Capture body defaults from \s0 (Normal / Default Paragraph Style).
+                if (styleIndex.Value == 0)
+                {
+                    if (styleFont.HasValue) _doc.DefaultFontIndex = styleFont.Value;
+                    if (styleFs.HasValue)   _doc.DefaultBodyFontSizeHalfPoints = styleFs.Value;
+                    if (styleCf.HasValue)   _doc.DefaultBodyColorIndex = styleCf.Value;
+                    // Fall back to \s0 \lang if \deflang was not set at document level.
+                    if (styleLang.HasValue && _doc.DefaultLanguageId == 0)
+                        _doc.DefaultLanguageId = styleLang.Value;
+                }
+
+                int? level = outline;
+                if (!level.HasValue)
+                {
+                    var n = name.ToString().TrimEnd(';').Trim();
+                    if (n.Length >= 9 && n.StartsWith("heading ", StringComparison.OrdinalIgnoreCase)
+                        && char.IsDigit(n[8]))
+                    {
+                        int h = n[8] - '0';
+                        if (h >= 1 && h <= 9) level = h - 1;
+                    }
+                }
+                if (level.HasValue && level.Value >= 0 && level.Value <= 8)
+                    _styleOutlineLevels[styleIndex.Value] = level.Value;
+            }
+            styleIndex = null;
+            outline = null;
+            styleFont = null;
+            styleFs = null;
+            styleCf = null;
+            styleLang = null;
+            name.Clear();
+            def = new RtfStyleDefinition();
+        }
+
+        while (_index < _tokens.Count && depth > 0)
+        {
+            var t = _tokens[_index++];
+            switch (t.Type)
+            {
+                case RtfTokenType.GroupStart: depth++; break;
+                case RtfTokenType.GroupEnd:
+                    depth--;
+                    if (depth == 1) Commit();
+                    if (depth == 0) return;
+                    break;
+                case RtfTokenType.ControlWord:
+                    switch (t.Value)
+                    {
+                        case "s":            if (t.Parameter.HasValue) styleIndex = t.Parameter.Value; break;
+                        case "outlinelevel": if (t.Parameter.HasValue) outline = t.Parameter.Value; break;
+                        // Capture \s0 body defaults (depth 2 = directly inside the style entry).
+                        case "f":    if (depth == 2 && t.Parameter.HasValue) styleFont = t.Parameter.Value; break;
+                        case "fs":   if (depth == 2 && t.Parameter.HasValue) styleFs   = t.Parameter.Value; break;
+                        case "cf":   if (depth == 2 && t.Parameter.HasValue) styleCf   = t.Parameter.Value; break;
+                        case "lang": if (depth == 2 && t.Parameter.HasValue) styleLang = t.Parameter.Value; break;
+                    }
+
+                    // Capture the style's own formatting deltas (only direct entries at depth 2).
+                    if (depth == 2)
+                        CaptureStyleDelta(def, t.Value, t.Parameter);
+                    break;
+
+                case RtfTokenType.Text:
+                    if (depth == 2) name.Append(t.Value);
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Records a single control word encountered inside a stylesheet entry as a formatting
+    /// delta on <paramref name="def"/>. Only the subset of properties commonly carried by
+    /// Word paragraph/character styles is captured.
+    /// </summary>
+    private static void CaptureStyleDelta(RtfStyleDefinition def, string word, int? param)
+    {
+        switch (word)
+        {
+            case "sbasedon": if (param.HasValue) def.BasedOn = param.Value; break;
+
+            // character
+            case "b":       def.Bold      = param != 0; break;
+            case "i":       def.Italic    = param != 0; break;
+            case "strike":  def.Strike    = param != 0; break;
+            case "caps":    def.AllCaps   = param != 0; break;
+            case "scaps":   def.SmallCaps = param != 0; break;
+            case "ul":      def.Underline = param != 0 ? UnderlineStyle.Single : UnderlineStyle.None; break;
+            case "ulnone":  def.Underline = UnderlineStyle.None; break;
+            case "uldb":    def.Underline = UnderlineStyle.Double; break;
+            case "uldot":   def.Underline = UnderlineStyle.Dotted; break;
+            case "uld":
+            case "uldash":  def.Underline = UnderlineStyle.Dashed; break;
+            case "ulwave":  def.Underline = UnderlineStyle.Wave; break;
+            case "ulth":    def.Underline = UnderlineStyle.Thick; break;
+            case "super":   def.VerticalPosition = Model.VerticalPosition.Superscript; break;
+            case "sub":     def.VerticalPosition = Model.VerticalPosition.Subscript; break;
+            case "nosupersub": def.VerticalPosition = Model.VerticalPosition.Normal; break;
+            case "f":       if (param.HasValue) def.FontIndex = param.Value; break;
+            case "fs":      if (param.HasValue) def.FontSizeHalfPoints = param.Value; break;
+            case "cf":      def.ForegroundColorIndex = param; break;
+            case "highlight": def.HighlightColorIndex = param; break;
+
+            // paragraph
+            case "ql": def.Alignment = TextAlignment.Left;    break;
+            case "qc": def.Alignment = TextAlignment.Center;  break;
+            case "qr": def.Alignment = TextAlignment.Right;   break;
+            case "qj": def.Alignment = TextAlignment.Justify; break;
+            case "li": def.LeftIndentTwips      = param ?? 0; break;
+            case "ri": def.RightIndentTwips     = param ?? 0; break;
+            case "fi": def.FirstLineIndentTwips = param ?? 0; break;
+            case "sb": def.SpaceBeforeTwips     = param ?? 0; break;
+            case "sa": def.SpaceAfterTwips      = param ?? 0; break;
+            case "keep":   def.KeepTogether    = true; break;
+            case "keepn":  def.KeepWithNext    = true; break;
+            case "pagebb": def.PageBreakBefore = true; break;
+        }
+    }
+
+    /// <summary>
+    /// Applies the formatting of the referenced style (and its <c>\sbasedon</c> chain) onto the
+    /// current run/paragraph state. Only properties the style explicitly declares are overlaid,
+    /// so document-level defaults and later explicit control words remain in effect.
+    /// </summary>
+    private void ApplyStyle(int styleIndex)
+    {
+        // Resolve the based-on chain, most-derived last, guarding against cycles.
+        var chain = new List<RtfStyleDefinition>();
+        var seen = new HashSet<int>();
+        int? cursor = styleIndex;
+        while (cursor.HasValue && seen.Add(cursor.Value) && _styles.TryGetValue(cursor.Value, out var s))
+        {
+            chain.Add(s);
+            cursor = s.BasedOn;
+        }
+
+        var cf = _state.CharFormat;
+        var pf = _state.ParagraphFormat;
+
+        // Apply base styles first, then progressively more-derived ones (chain is derived->base).
+        for (int i = chain.Count - 1; i >= 0; i--)
+        {
+            var d = chain[i];
+
+            if (d.Bold.HasValue)      cf.Bold      = d.Bold.Value;
+            if (d.Italic.HasValue)    cf.Italic    = d.Italic.Value;
+            if (d.Strike.HasValue)    cf.Strike    = d.Strike.Value;
+            if (d.AllCaps.HasValue)   cf.AllCaps   = d.AllCaps.Value;
+            if (d.SmallCaps.HasValue) cf.SmallCaps = d.SmallCaps.Value;
+            if (d.Underline.HasValue)
+            {
+                cf.UnderlineStyle = d.Underline.Value;
+                cf.Underline = d.Underline.Value != UnderlineStyle.None;
+            }
+            if (d.VerticalPosition.HasValue)     cf.VerticalPosition = d.VerticalPosition.Value;
+            if (d.FontIndex.HasValue)            cf.FontIndex = d.FontIndex.Value;
+            if (d.FontSizeHalfPoints.HasValue)   cf.FontSizeHalfPoints = d.FontSizeHalfPoints.Value;
+            if (d.ForegroundColorIndex.HasValue) cf.ForegroundColorIndex = d.ForegroundColorIndex.Value;
+            if (d.HighlightColorIndex.HasValue)  cf.HighlightColorIndex = d.HighlightColorIndex.Value;
+
+            if (d.Alignment.HasValue)            pf.Alignment = d.Alignment.Value;
+            if (d.LeftIndentTwips.HasValue)      pf.LeftIndentTwips = d.LeftIndentTwips.Value;
+            if (d.RightIndentTwips.HasValue)     pf.RightIndentTwips = d.RightIndentTwips.Value;
+            if (d.FirstLineIndentTwips.HasValue) pf.FirstLineIndentTwips = d.FirstLineIndentTwips.Value;
+            if (d.SpaceBeforeTwips.HasValue)     pf.SpaceBeforeTwips = d.SpaceBeforeTwips.Value;
+            if (d.SpaceAfterTwips.HasValue)      pf.SpaceAfterTwips = d.SpaceAfterTwips.Value;
+            if (d.OutlineLevel.HasValue)         pf.OutlineLevel = d.OutlineLevel.Value;
+            if (d.KeepTogether.HasValue)         pf.KeepTogether = d.KeepTogether.Value;
+            if (d.KeepWithNext.HasValue)         pf.KeepWithNext = d.KeepWithNext.Value;
+            if (d.PageBreakBefore.HasValue)      pf.PageBreakBefore = d.PageBreakBefore.Value;
+        }
+    }
+
+    // ---------------- legacy paragraph numbering (\*\pn) ----------------
+    private void HandleLegacyPn()
+    {
+        // We're inside {\*\pn ...}. Determine bullet vs numbered, consume through the
+        // matching close brace, then flag the *parent* group state so following paragraphs
+        // are treated as list items until \pard resets.
+        int depth = 1;
+        bool ordered = true; // default to numbered; \pnlvlblt marks a bullet list
+        while (_index < _tokens.Count && depth > 0)
+        {
+            var t = _tokens[_index++];
+            switch (t.Type)
+            {
+                case RtfTokenType.GroupStart: depth++; break;
+                case RtfTokenType.GroupEnd:   depth--; break;
+                case RtfTokenType.ControlWord:
+                    if (t.Value == "pnlvlblt") ordered = false;
+                    break;
+            }
+        }
+        // The main loop pushed a state at the group's '{'; it won't see the '}' we consumed.
+        PopGroup();
+        _state.LegacyListOrdered = ordered;
+    }
+
     // ---------------- paragraph flush ----------------
 
     private void FlushParagraph(bool forceEmit)
     {
+        FlushPendingBytes();
+
         // Paragraph formatting (\qc, \li, \sb, ...) applies to the paragraph terminated
         // by \par, so we capture the current paragraph format here rather than at start.
         _paragraph.Format = _state.ParagraphFormat.Clone();
         _paragraph.ListId = _state.ListId;
         _paragraph.ListLevel = _state.ListLevel;
+
+        // Legacy \*\pn numbering: give these paragraphs a synthetic list id so the normal
+        // list-collapsing pass groups them into <ul>/<ol>.
+        if (_paragraph.ListId == null && _state.LegacyListOrdered.HasValue)
+        {
+            int syntheticId = _state.LegacyListOrdered.Value ? LegacyOrderedListId : LegacyBulletListId;
+            _paragraph.ListId = syntheticId;
+            _doc.Lists.SetDefinition(syntheticId, new RtfListDefinition { Ordered = _state.LegacyListOrdered.Value });
+            _doc.Lists.MapOverride(syntheticId, syntheticId);
+        }
 
         // Skip empty leading paragraphs entirely.
         if (_paragraph.Runs.Count == 0 && !forceEmit)
@@ -861,17 +1283,15 @@ internal sealed class RtfParser
         _paragraph = new RtfParagraph { Format = _state.ParagraphFormat.Clone() };
     }
 
-    /// <summary>Route a completed block into either the active table cell or the document body.</summary>
+    /// <summary>Route a completed block into either the active table cell, the destination sink, or the document body.</summary>
     private void AddBlock(RtfBlock block)
     {
-        if (_tableState != null && _tableState.CurrentCellBlocks != null)
-        {
+        if (_destinationSink != null)
+            _destinationSink.Add(block);
+        else if (_tableState != null && _tableState.CurrentCellBlocks != null)
             _tableState.CurrentCellBlocks.Add(block);
-        }
         else
-        {
             _doc.Body.Add(block);
-        }
     }
 
     // ---------- pict ----------
@@ -963,61 +1383,181 @@ internal sealed class RtfParser
         int depth = 1;
         bool isOverrideEntry = false;   // true when the current inner group is a \listoverride
         bool isListEntry = false;       // true when the current inner group is a \list
+        bool isListLevel = false;       // true when inside a \listlevel group
         int? currentListId = null;
         int? currentLs = null;
-        bool currentOrdered = false;
+        RtfListDefinition? currentListDef = null;
+        RtfListLevelDefinition? currentLevel = null;
         int entryDepth = -1;            // depth at which the current entry started
+        int levelDepth = -1;            // depth at which the current level started
+        StringBuilder? levelTextBuilder = null; // Accumulates text inside {\leveltext ...}
+        bool inLevelText = false;
 
         while (_index < _tokens.Count && depth > 0)
         {
             var t = _tokens[_index++];
             switch (t.Type)
             {
-                case RtfTokenType.GroupStart: depth++; break;
+                case RtfTokenType.GroupStart:
+                    depth++;
+                    break;
+
                 case RtfTokenType.GroupEnd:
                     depth--;
+
+                    // Closing a \listlevel group
+                    if (isListLevel && depth == levelDepth - 1)
+                    {
+                        if (currentLevel != null && currentListDef != null)
+                        {
+                            // Finalize level text from accumulated text
+                            if (inLevelText && levelTextBuilder != null)
+                            {
+                                currentLevel.LevelText = levelTextBuilder.ToString();
+                            }
+                            currentListDef.Levels.Add(currentLevel);
+                        }
+                        isListLevel = false;
+                        currentLevel = null;
+                        levelDepth = -1;
+                        inLevelText = false;
+                        levelTextBuilder = null;
+                    }
+
+                    // Closing the current \list or \listoverride entry
                     if (depth == entryDepth - 1)
                     {
-                        // Closing the current entry.
-                        if (isListEntry && currentListId.HasValue)
-                            _doc.Lists.SetDefinition(currentListId.Value, new RtfListDefinition { Ordered = currentOrdered });
+                        if (isListEntry && currentListId.HasValue && currentListDef != null)
+                        {
+                            // Determine if ordered based on any level having numeric format
+                            currentListDef.Ordered = currentListDef.Levels.Any(lvl => !ListNumberingFormatter.IsBulletFormat(lvl.NumberFormat));
+                            _doc.Lists.SetDefinition(currentListId.Value, currentListDef);
+                        }
                         else if (isOverrideEntry && currentListId.HasValue && currentLs.HasValue)
+                        {
                             _doc.Lists.MapOverride(currentLs.Value, currentListId.Value);
+                        }
 
                         isListEntry = false;
                         isOverrideEntry = false;
                         currentListId = null;
                         currentLs = null;
-                        currentOrdered = false;
+                        currentListDef = null;
                         entryDepth = -1;
                     }
+
                     if (depth == 0) return;
                     break;
+
                 case RtfTokenType.ControlWord:
                     switch (t.Value)
                     {
                         case "list":
                             isListEntry = true;
                             entryDepth = depth;
+                            currentListDef = new RtfListDefinition();
                             break;
+
                         case "listoverride":
                             isOverrideEntry = true;
                             entryDepth = depth;
                             break;
+
                         case "listid":
                             if ((isListEntry || isOverrideEntry) && t.Parameter.HasValue)
                                 currentListId = t.Parameter.Value;
                             break;
+
                         case "ls":
                             if (isOverrideEntry && t.Parameter.HasValue)
                                 currentLs = t.Parameter.Value;
                             break;
+
+                        case "listlevel":
+                            if (isListEntry)
+                            {
+                                isListLevel = true;
+                                levelDepth = depth;
+                                currentLevel = new RtfListLevelDefinition();
+                            }
+                            break;
+
                         case "levelnfc":
                         case "levelnfcn":
-                            // 23 = bullet, anything else = numeric-ish.
-                            if (isListEntry && t.Parameter.HasValue && t.Parameter.Value != 23)
-                                currentOrdered = true;
+                            if (isListLevel && currentLevel != null && t.Parameter.HasValue)
+                                currentLevel.NumberFormat = t.Parameter.Value;
                             break;
+
+                        case "levelstartat":
+                            if (isListLevel && currentLevel != null && t.Parameter.HasValue)
+                                currentLevel.StartAt = t.Parameter.Value;
+                            break;
+
+                        case "leveljc":
+                        case "leveljcn":
+                            if (isListLevel && currentLevel != null && t.Parameter.HasValue)
+                                currentLevel.Justification = t.Parameter.Value;
+                            break;
+
+                        case "levelfollow":
+                            if (isListLevel && currentLevel != null && t.Parameter.HasValue)
+                                currentLevel.FollowChar = t.Parameter.Value;
+                            break;
+
+                        case "levelnorestart":
+                            if (isListLevel && currentLevel != null && t.Parameter.HasValue)
+                                currentLevel.Restart = t.Parameter.Value == 0;
+                            break;
+
+                        case "levellegal":
+                            if (isListLevel && currentLevel != null)
+                                currentLevel.Legal = true;
+                            break;
+
+                        case "leveltext":
+                            // Start capturing level text
+                            if (isListLevel)
+                            {
+                                inLevelText = true;
+                                levelTextBuilder = new StringBuilder();
+                            }
+                            break;
+
+                        case "levelnumbers":
+                            // Placeholder positions in level text - we don't need to parse this in detail
+                            // as we'll handle it when rendering
+                            break;
+
+                        case "f":
+                            // Font index - capture if inside a level definition
+                            if (isListLevel && currentLevel != null && t.Parameter.HasValue)
+                                currentLevel.FontIndex = t.Parameter.Value;
+                            break;
+                    }
+                    break;
+
+                case RtfTokenType.Text:
+                    // Capture text inside \leveltext group
+                    if (inLevelText && levelTextBuilder != null)
+                    {
+                        levelTextBuilder.Append(t.Value);
+                    }
+                    break;
+
+                case RtfTokenType.ControlSymbol:
+                    // Handle special characters in level text
+                    if (inLevelText && levelTextBuilder != null)
+                    {
+                        switch (t.Value)
+                        {
+                            case "'":
+                                // Hex-encoded character (e.g., \'b7 for bullet)
+                                if (t.Parameter.HasValue)
+                                {
+                                    levelTextBuilder.Append((char)t.Parameter.Value);
+                                }
+                                break;
+                        }
                     }
                     break;
             }
@@ -1207,11 +1747,12 @@ internal sealed class RtfParser
                 case RtfTokenType.ControlWord: HandleControlWord(t); break;
                 case RtfTokenType.ControlSymbol: HandleControlSymbol(t); break;
                 case RtfTokenType.Text:
-                    if (!_state.SkipDestination) AppendText(t.Value);
+                    AppendTextBytes(t.Value);
                     break;
             }
         }
 
+        FlushPendingBytes();
         _fieldState!.ResultRuns.AddRange(_paragraph.Runs);
         _paragraph = savedParagraph;
     }
@@ -1230,6 +1771,25 @@ internal sealed class RtfParser
         var oldSkip = _state.SkipDestination;
         _state.SkipDestination = false;
 
+        // Redirect AddBlock calls (from \par flushes, \page, etc.) away from _doc.Body so
+        // that header/footer/footnote content does not pollute the document body.
+        var sinkBlocks = new List<RtfBlock>();
+        var prevSink = _destinationSink;
+        _destinationSink = sinkBlocks;
+
+        void Finish()
+        {
+            FlushPendingBytes();
+            // Collect runs from every \par-flushed intermediate paragraph…
+            foreach (var b in sinkBlocks)
+                if (b is RtfParagraph sp) target.AddRange(sp.Runs);
+            // …and the final paragraph (not yet terminated by \par).
+            target.AddRange(_paragraph.Runs);
+            _paragraph = savedParagraph;
+            _state.SkipDestination = oldSkip;
+            _destinationSink = prevSink;
+        }
+
         while (_index < _tokens.Count && depth > 0)
         {
             var t = _tokens[_index++];
@@ -1240,9 +1800,7 @@ internal sealed class RtfParser
                     depth--;
                     if (depth == 0)
                     {
-                        target.AddRange(_paragraph.Runs);
-                        _paragraph = savedParagraph;
-                        _state.SkipDestination = oldSkip;
+                        Finish();
                         PopGroup(); // pop the state that our caller's GroupStart pushed
                         return;
                     }
@@ -1251,14 +1809,12 @@ internal sealed class RtfParser
                 case RtfTokenType.ControlWord: HandleControlWord(t); break;
                 case RtfTokenType.ControlSymbol: HandleControlSymbol(t); break;
                 case RtfTokenType.Text:
-                    if (!_state.SkipDestination) AppendText(t.Value);
+                    AppendTextBytes(t.Value);
                     break;
             }
         }
 
-        target.AddRange(_paragraph.Runs);
-        _paragraph = savedParagraph;
-        _state.SkipDestination = oldSkip;
+        Finish();
     }
 
     private void HandleHeaderFooter(bool isHeader)
@@ -1377,22 +1933,71 @@ internal sealed class RtfParser
     private BorderTarget _paraBorderTarget = BorderTarget.None;
     private bool _paraBoxMode;
 
+    // Pending tab-stop attributes accumulated before the closing \txN control word.
+    private TabAlignment _pendingTabAlignment = TabAlignment.Left;
+    private TabLeader _pendingTabLeader = TabLeader.None;
+
+    /// <summary>
+    /// Resolves a tab against the current paragraph's defined tab stops, baking the advance
+    /// width and leader onto the run. When the tab falls back to a default tab stop, width is
+    /// left at 0 so the emitter renders the legacy em-space.
+    /// </summary>
+    private void ResolveTab(RtfTab tab)
+    {
+        var stops = _state.ParagraphFormat.TabStops;
+        if (stops.Count == 0) return;
+
+        int ordinal = 0;
+        foreach (var r in _paragraph.Runs)
+            if (r is RtfTab) ordinal++;
+
+        if (ordinal >= stops.Count) return;
+
+        var stop = stops[ordinal];
+        int prev = ordinal > 0 ? stops[ordinal - 1].PositionTwips : 0;
+        int width = stop.PositionTwips - prev;
+        if (width <= 0) return;
+
+        tab.WidthTwips = width;
+        tab.Leader = stop.Leader;
+    }
+
     private void BeginTableRow()
     {
         if (_tableState == null)
         {
             _tableState = new TableBuildState();
         }
+
+        // Word emits \trowd twice per row: once to define column boundaries, then again
+        // immediately before \row to repeat the definition. Detect that case by checking
+        // whether cells have already been collected. When they have, only refresh the
+        // row-definition metadata (boundaries, formats) — never discard the accumulated
+        // cell content, which \row will consume.
+        bool rowHasCells = _tableState.CurrentRowCells.Count > 0;
+
         _tableState.CurrentRowBoundaries.Clear();
         _tableState.PendingMergeStart = false;
         _tableState.PendingMergeContinue = false;
-        // Prepare buffer for first cell's blocks.
-        _tableState.CurrentCellBlocks = new List<RtfBlock>();
-        _tableState.CurrentRowCells.Clear();
-        _tableState.CurrentRowCellStates.Clear();
+        _tableState.PendingVMergeStart = false;
+        _tableState.PendingVMergeContinue = false;
         _tableState.PendingCell = new CellDefState();
         _tableState.RowDef = new RowDefState();
         _tableState.CurrentBorderTarget = BorderTarget.None;
+
+        if (!rowHasCells)
+        {
+            // First \trowd for this row: start with clean cell buffers.
+            _tableState.CurrentCellBlocks = new List<RtfBlock>();
+            _tableState.CurrentRowCells.Clear();
+            _tableState.CurrentRowCellStates.Clear();
+        }
+        else
+        {
+            // Repeated \trowd (Word pattern): keep accumulated cells; only refresh the
+            // cell-state list so the new \cellx declarations re-populate it cleanly.
+            _tableState.CurrentRowCellStates.Clear();
+        }
     }
 
     private void RecordCellBoundary(int rightTwips)
@@ -1406,30 +2011,40 @@ internal sealed class RtfParser
         snap.RightEdgeTwips = rightTwips;
         snap.MergeStart = _tableState.PendingMergeStart;
         snap.MergeContinue = _tableState.PendingMergeContinue;
+        snap.VMergeStart = _tableState.PendingVMergeStart;
+        snap.VMergeContinue = _tableState.PendingVMergeContinue;
         _tableState.CurrentRowCellStates.Add(snap);
 
         _tableState.PendingMergeStart = false;
         _tableState.PendingMergeContinue = false;
+        _tableState.PendingVMergeStart = false;
+        _tableState.PendingVMergeContinue = false;
         _tableState.PendingCell = new CellDefState();
         _tableState.CurrentBorderTarget = BorderTarget.None;
     }
 
     private void MarkCellMergeStart() { if (_tableState != null) _tableState.PendingMergeStart = true; }
     private void MarkCellMergeContinuation() { if (_tableState != null) _tableState.PendingMergeContinue = true; }
+    private void MarkCellVMergeStart() { if (_tableState != null) _tableState.PendingVMergeStart = true; }
+    private void MarkCellVMergeContinuation() { if (_tableState != null) _tableState.PendingVMergeContinue = true; }
 
     private void CloseCell()
     {
         if (_tableState == null) return;
+        // Defensive: some malformed documents emit \cell with no open row buffer.
+        if (_tableState.CurrentCellBlocks == null)
+            _tableState.CurrentCellBlocks = new List<RtfBlock>();
 
         // Flush any pending paragraph runs into the cell buffer.
+        FlushPendingBytes();
         if (_paragraph.Runs.Count > 0)
         {
             _paragraph.Format = _state.ParagraphFormat.Clone();
-            _tableState.CurrentCellBlocks!.Add(_paragraph);
+            _tableState.CurrentCellBlocks.Add(_paragraph);
             _paragraph = new RtfParagraph { Format = _state.ParagraphFormat.Clone() };
         }
 
-        _tableState.CurrentRowCells.Add(_tableState.CurrentCellBlocks!);
+        _tableState.CurrentRowCells.Add(_tableState.CurrentCellBlocks);
         _tableState.CurrentCellBlocks = new List<RtfBlock>();
     }
 
@@ -1473,6 +2088,8 @@ internal sealed class RtfParser
                 WidthTwips = def.WidthTwips,
                 VerticalAlignment = def.VerticalAlignment,
                 BackgroundColorIndex = def.BackgroundColorIndex,
+                VerticalMergeStart = def.VMergeStart,
+                VerticalMergeContinue = def.VMergeContinue,
                 BorderTop = def.BorderTop.Clone(),
                 BorderRight = def.BorderRight.Clone(),
                 BorderBottom = def.BorderBottom.Clone(),
@@ -1514,6 +2131,8 @@ internal sealed class RtfParser
         public List<RtfBlock>? CurrentCellBlocks { get; set; }
         public bool PendingMergeStart { get; set; }
         public bool PendingMergeContinue { get; set; }
+        public bool PendingVMergeStart { get; set; }
+        public bool PendingVMergeContinue { get; set; }
 
         /// <summary>Scratch cell format being accumulated for the next \cellx.</summary>
         public CellDefState PendingCell { get; set; } = new CellDefState();
@@ -1531,6 +2150,8 @@ internal sealed class RtfParser
         public int WidthTwips { get; set; }
         public bool MergeStart { get; set; }
         public bool MergeContinue { get; set; }
+        public bool VMergeStart { get; set; }
+        public bool VMergeContinue { get; set; }
         public CellVerticalAlignment VerticalAlignment { get; set; } = CellVerticalAlignment.Top;
         public int? BackgroundColorIndex { get; set; }
         public BorderSide BorderTop    { get; set; } = new BorderSide();
@@ -1544,6 +2165,8 @@ internal sealed class RtfParser
             WidthTwips = WidthTwips,
             MergeStart = MergeStart,
             MergeContinue = MergeContinue,
+            VMergeStart = VMergeStart,
+            VMergeContinue = VMergeContinue,
             VerticalAlignment = VerticalAlignment,
             BackgroundColorIndex = BackgroundColorIndex,
             BorderTop = BorderTop.Clone(),
@@ -1595,19 +2218,63 @@ internal sealed class RtfParser
     // ---------- post-processing: group list-flagged paragraphs into RtfList blocks ----------
     private void CollapseListParagraphs()
     {
-        var body = _doc.Body;
+        CollapseBlockList(_doc.Body);
+        // Also collapse lists that landed inside table cells.
+        foreach (var block in _doc.Body)
+        {
+            if (block is RtfTable table)
+            {
+                foreach (var row in table.Rows)
+                    foreach (var cell in row.Cells)
+                        CollapseBlockList(cell.Blocks);
+            }
+        }
+    }
+
+    private void CollapseBlockList(List<RtfBlock> body)
+    {
         for (int i = 0; i < body.Count; i++)
         {
             if (body[i] is RtfParagraph p && p.ListId.HasValue)
             {
                 int listId = p.ListId.Value;
-                bool ordered = _doc.Lists.TryGet(listId, out var def) && def.Ordered;
-                var list = new RtfList { Ordered = ordered };
+                RtfListDefinition? def = null;
+                bool ordered = _doc.Lists.TryGet(listId, out def!) && def.Ordered;
+                var list = new RtfList { Ordered = ordered, Definition = def, ListId = listId };
+
+                // Track item numbers per level for restart logic
+                var levelCounters = new Dictionary<int, int>();
 
                 int j = i;
                 while (j < body.Count && body[j] is RtfParagraph pp && pp.ListId == listId)
                 {
-                    var item = new RtfListItem { Level = pp.ListLevel, Format = pp.Format };
+                    int level = pp.ListLevel;
+
+                    // Reset counters for deeper levels when moving up
+                    var keysToRemove = levelCounters.Keys.Where(k => k > level).ToList();
+                    foreach (var key in keysToRemove)
+                        levelCounters.Remove(key);
+
+                    // Increment counter for this level
+                    if (!levelCounters.ContainsKey(level))
+                    {
+                        // Get start value from definition if available
+                        int startAt = 1;
+                        if (def != null && level < def.Levels.Count)
+                            startAt = def.Levels[level].StartAt;
+                        levelCounters[level] = startAt;
+                    }
+                    else
+                    {
+                        levelCounters[level]++;
+                    }
+
+                    var item = new RtfListItem 
+                    { 
+                        Level = level, 
+                        Format = pp.Format,
+                        Number = levelCounters[level]
+                    };
                     item.Runs.AddRange(pp.Runs);
                     list.Items.Add(item);
                     j++;
@@ -1629,10 +2296,13 @@ internal sealed class RtfParser
         cw == "themedata" || cw == "datastore" || cw == "xmlnstbl" ||
         cw == "latentstyles" || cw == "wgrffmtfilter" ||
         cw == "colorschememapping" || cw == "shppict" || cw == "nonshppict" ||
-        cw == "shp" || cw == "shpinst" ||
+        cw == "shp" || cw == "shpinst" || cw == "pn" ||
         cw == "pntext" || cw == "pntxta" || cw == "pntxtb" || cw == "listtext";
 
     // ---------------- nested state ----------------
+
+    private const int LegacyBulletListId = -1001;
+    private const int LegacyOrderedListId = -1002;
 
     private sealed class GroupState
     {
@@ -1644,6 +2314,9 @@ internal sealed class RtfParser
         public int ListLevel { get; set; }
         public bool InTable { get; set; }
 
+        /// <summary>Legacy \*\pn numbering active for following paragraphs: false = bullet, true = ordered. Null = none.</summary>
+        public bool? LegacyListOrdered { get; set; }
+
         public GroupState Clone() => new GroupState
         {
             CharFormat = CharFormat.Clone(),
@@ -1653,6 +2326,7 @@ internal sealed class RtfParser
             ListId = ListId,
             ListLevel = ListLevel,
             InTable = InTable,
+            LegacyListOrdered = LegacyListOrdered,
         };
     }
 }

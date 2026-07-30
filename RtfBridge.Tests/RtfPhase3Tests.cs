@@ -15,7 +15,7 @@ namespace RtfBridgeTests;
 public class RtfPhase3Tests
 {
     private static string Convert(string rtf, RtfToHtmlOptions? options = null) =>
-        new global::RtfBridge.RtfBridge()
+        new global::RtfBridge.RtfBridgeConverter()
             .ConvertRtfToHtml(rtf, options ?? RtfToHtmlOptions.FragmentOnly);
 
     // ---------- headers / footers ----------
