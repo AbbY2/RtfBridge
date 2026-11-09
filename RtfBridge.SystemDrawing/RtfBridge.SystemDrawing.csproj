@@ -14,7 +14,13 @@
     <Copyright>Developed by Amit Tiwari</Copyright>
     <Description>Optional WMF/EMF vector image renderer for RtfBridge, based on System.Drawing.Common (Windows).</Description>
     <PackageTags>rtf;html;wmf;emf;system.drawing;metafile</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RtfBridge\RtfBridgeConverter.csproj" />
