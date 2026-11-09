@@ -1,194 +1,244 @@
 # RtfBridge
 
-Pure-managed **RTF → HTML** conversion library for .NET.
+> **Pure-managed RTF → HTML converter for .NET** — no WPF, no GDI, no native dependencies. Runs on Windows, Linux, and macOS.
 
-Multi-targets `net462`, `netstandard2.0`, `net8.0`, and `net10.0`. No WPF, no `System.Drawing`, no temp files, no platform lock-in — the core library runs identically on Windows, Linux, and macOS.
-
-Optional companion packages:
-
-- **`RtfBridge.SystemDrawing`** — Windows-only WMF/EMF rasterizer plug-in.
-- **`RtfBridge.AspNetCore`** — DI extensions and a ready-made HTTP endpoint for ASP.NET Core.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-4.6.2%20%7C%20Standard%202.0%20%7C%208%20%7C%2010-512BD4)](https://dotnet.microsoft.com)
+[![Tests](https://img.shields.io/badge/tests-130%20passing-brightgreen)](#)
 
 ---
 
 ## Packages
 
-| Package | Version | TFMs | Purpose |
-|---|---|---|---|
-| `RtfBridge` | 2.1.0 | `net462; netstandard2.0; net8.0; net10.0` | Core pure-managed RTF → HTML converter. |
-| `RtfBridge.SystemDrawing` | 2.1.0 | `net462; net8.0-windows; net10.0-windows` | WMF/EMF vector image renderer via `System.Drawing.Common` (Windows). |
-| `RtfBridge.AspNetCore` | 2.1.0 | `net8.0; net10.0` | `AddRtfBridge()` DI extension and `MapRtfToHtml()` minimal-API endpoint. |
+| Package | Description | Targets |
+|---|---|---|
+| `RtfBridge` | Core converter | net462 · netstandard2.0 · net8.0 · net10.0 |
+| `RtfBridge.AspNetCore` | DI extensions + minimal-API endpoint | net8.0 · net10.0 |
+| `RtfBridge.SystemDrawing` | WMF/EMF vector image renderer (Windows) | net462 · net8.0-windows · net10.0-windows |
 
-## Install
+---
 
-```powershell
-dotnet add package RtfBridge --version 2.1.0
-# Optional:
-dotnet add package RtfBridge.SystemDrawing --version 2.1.0
-dotnet add package RtfBridge.AspNetCore   --version 2.1.0
-```
+## Quick Start
 
-## Quick start
+### Basic conversion
 
 ```csharp
 using RtfBridge;
 
 var converter = new RtfBridgeConverter();
-string html = converter.ConvertRtfToHtml(rtfString);
+
+// From string
+string html = converter.ConvertRtfToHtml(rtfText);
+
+// From stream (e.g. uploaded file)
+using var stream = File.OpenRead("document.rtf");
+string html = converter.ConvertRtfToHtml(stream, RtfToHtmlOptions.Default);
 ```
 
-Fragment (body-only) output for email templates or CMS embedding:
+### Fragment only (for embedding in an existing page)
 
 ```csharp
-string fragment = converter.ConvertRtfToHtml(rtfString, RtfToHtmlOptions.FragmentOnly);
+string fragment = converter.ConvertRtfToHtml(rtfText, RtfToHtmlOptions.FragmentOnly);
 ```
 
-Detailed conversion with warnings:
+### Detailed result with warnings
 
 ```csharp
-RtfConversionResult result = converter.ConvertRtfToHtmlDetailed(rtfString, RtfToHtmlOptions.Default);
+var result = converter.ConvertRtfToHtmlDetailed(rtfText, RtfToHtmlOptions.Default);
 Console.WriteLine(result.Html);
-foreach (var w in result.Warnings) Console.WriteLine($"{w.Code}: {w.Message}");
+foreach (var w in result.Warnings) Console.WriteLine(w);
 ```
 
-Reading directly from a stream (preserves `\pict` binary/hex payloads exactly):
+---
+
+## ASP.NET Core Integration
+
+### 1. Register
 
 ```csharp
-using var fs = File.OpenRead("document.rtf");
-string html = converter.ConvertRtfToHtml(fs, RtfToHtmlOptions.Default);
+// Program.cs
+builder.Services.AddRtfBridge(options =>
+{
+    options.Sanitization = HtmlSanitizationLevel.Strict;
+    options.RenderFootnotesAsList = true;
+});
 ```
+
+### 2. Map the endpoint
+
+```csharp
+app.MapRtfToHtml();          // POST /convert/rtf-to-html
+// or
+app.MapRtfToHtml("/api/rtf"); // custom route
+```
+
+### 3. Call it
+
+```bash
+curl -X POST https://yourapp/convert/rtf-to-html \
+     -H "Content-Type: application/rtf" \
+     --data-binary @document.rtf
+```
+
+Add `?fullDocument=false` to receive an HTML fragment instead of a full document.
+
+---
 
 ## Options
 
-| Option | Default | Purpose |
-|---|---|---|
-| `EmitFullDocument` | `true` | Wrap output in `<!DOCTYPE html>…</html>`. |
-| `InlineStyles` | `false` | Reserved — the emitter currently always uses inline `style="…"` (email-safe). |
-| `PreserveListNesting` | `true` | Nest `<ul>`/`<ol>` for `\ilvl` levels; `false` flattens to one level. |
-| `RenderHeadersFooters` | `false` | Emit `<header>` / `<footer>` sections. |
-| `RenderFootnotesAsList` | `true` | Append `<ol class="footnotes">` at end. |
-| `RenderPageBreaks` | `true` | Emit `<hr style="page-break-after:always">` for `\page`/`\sect`. |
-| `DeterministicOutput` | `true` | Informational — output is always byte-identical for identical input. |
-| `DefaultCodePage` | `1252` | Fallback for `\'hh` when `\ansicpg` is missing. |
-| `Sanitization` | `Basic` | URL policy for hyperlinks: `None` passes everything; `Basic` blocks `javascript:`/`vbscript:`/`data:`/`file:`; `Strict` allows only `http`/`https`/`mailto`/`tel`/`#`. Text is always HTML-encoded. |
-| `MaxImageBytes` | 20 MB | Skip and warn on larger images. |
-| `VectorImageRenderer` | `null` | Plug-in for WMF/EMF (see below). |
-| `RenderHiddenText` | `false` | Emit `\v` hidden runs as `display:none` spans instead of dropping them. |
-| `DecodeHtmlEncapsulation` | `true` | Detect Outlook RTF-encapsulated HTML (`\fromhtml1`) and return the original HTML from `\*\htmltag` destinations. |
+```csharp
+var options = new RtfToHtmlOptions
+{
+    EmitFullDocument      = true,   // full <!DOCTYPE html> wrapper + <style> block
+    PreserveListNesting   = true,   // nested <ul>/<ol> for \lsN \ilvlN
+    RenderHeadersFooters  = false,  // emit <header>/<footer> elements
+    RenderFootnotesAsList = true,   // footnotes as <ol> at document end
+    RenderPageBreaks      = true,   // \page / \sect → CSS page-break
+    DecodeHtmlEncapsulation = true, // extract original HTML from Outlook RTF (\fromhtml1)
+    Sanitization          = HtmlSanitizationLevel.Basic,
+    MaxImageBytes         = 20 * 1024 * 1024,
+    RenderHiddenText      = false,  // \v hidden text
+    DefaultCodePage       = 1252,
+};
+```
 
-Convenience presets: `RtfToHtmlOptions.Default`, `RtfToHtmlOptions.EmailSafe`, `RtfToHtmlOptions.FragmentOnly`.
+### Sanitization levels
 
-## Feature matrix
-
-| RTF feature | Status |
+| Level | Behaviour |
 |---|---|
-| Character formatting: bold, italic, underline, strike, super/sub, font, size, color, highlight | ✅ |
-| All caps (`\caps`), small caps (`\scaps`) | ✅ CSS `text-transform` / `font-variant` |
-| Hidden text (`\v`) | ✅ dropped by default, opt-in via `RenderHiddenText` |
-| Underline variants (`\uld`, `\uldb`, `\uldash*`, `\uldot*`, `\ulwave`, `\ulhwave`, `\ulth*`, `\ulw`, `\ulnone`) | ✅ mapped to CSS `text-decoration` styles |
-| Right-to-left (`\rtlpar`, `\rtlch`, `\ltrpar`, `\ltrch`) | ✅ emits `dir="rtl"` |
-| Language (`\lang`, `\langfe`, `\langnp`) | ✅ LCID → BCP-47 `lang="…"` |
-| Line spacing (`\sl`, `\slmult`) | ✅ CSS `line-height` |
-| Keep-together / keep-with-next / page-break-before (`\keep`, `\keepn`, `\pagebb`) | ✅ CSS `page-break-*` |
-| Paragraph formatting: alignment, indent (li/ri/fi), spacing (sb/sa) | ✅ |
-| Paragraph borders (`\brdrt/r/b/l/box`) with styles (`\brdrs`, `\brdrdb`, `\brdrdot`, `\brdrdash`, `\brdrhair`, `\brdrth`), width (`\brdrw`), color (`\brdrcf`) | ✅ |
-| Paragraph shading (`\cbpat`) | ✅ CSS `background-color` |
-| Paragraph absolute positioning (`\posx`, `\posy`, `\posxl/c/r/i/o`, `\posyt/c/b`, `\pvpg/\pvmrg/\pvpara`, `\phpg/\phmrg/\phcol`) | ✅ |
-| Baseline shift (`\up`, `\dn`) | ✅ CSS `vertical-align` |
-| Unicode (`\uN?`) incl. surrogate pairs / emoji, hex escapes (`\'hh`), `\binN` | ✅ |
-| Double-byte codepages (Shift-JIS 932, GBK 936, Hangul 949, Big5 950) with paired `\'hh` decoding | ✅ |
-| Per-font charset decoding (`\fcharset` → codepage: Cyrillic, Greek, CJK, Arabic, Hebrew, …) | ✅ |
-| Raw (unescaped) high bytes decoded via the active codepage | ✅ |
-| Font & color tables (braced and unbraced font entries, `\*\falt` ignored) | ✅ |
-| Special characters (`\emdash`, `\bullet`, quotes, spaces, NBSP, soft hyphen, …) | ✅ |
-| Images: PNG, JPEG, DIB (wrapped as BMP), GIF | ✅ inline base64 |
-| Image sizing (`\picwgoal`/`\pichgoal`, `\picw`/`\pich` fallback, `\picscalex`/`\picscaley`) | ✅ |
-| Image wrap (`\shpwr`) | ✅ CSS `float` / `clear` |
-| WMF / EMF | ✅ with `RtfBridge.SystemDrawing` (else placeholder + warning) |
-| LibreOffice Symbol-font PUA bullets, shape (`\shp`) pib images, `\shppict`/`\nonshppict` alternates | ✅ |
-| Lists: `\ls`/`\ilvl` with list-table + override resolution | ✅ nested |
-| Legacy lists (`\*\pn` / `\pntext`, WordPad & Word 95 style) | ✅ `<ul>`/`<ol>` |
-| Headings (`\outlinelevelN`, stylesheet "heading N" styles) | ✅ `<h1>`–`<h6>` |
-| Tables: `\trowd`/`\cellx`/`\cell`/`\row`, merged cells | ✅ |
-| Nested tables (`\itap`/`\nestcell`/`\nestrow`) | ⚠️ flattened into the outer cell (no crash, content preserved) |
-| Outlook RTF-encapsulated HTML (`\fromhtml1`, MS-OXRTFEX) | ✅ original HTML extracted |
-| Hyperlink URL sanitization (`javascript:` blocked by default) | ✅ configurable via `Sanitization` |
-| Table rows: header rows (`\trhdr` → `<thead>`/`<th>`), row alignment (`\trql/qc/qr`), row height (`\trrh`), cell padding (`\trpaddl/t/r/b`) | ✅ |
-| Table cells: vertical alignment (`\clvertalt/c/b`), explicit width (`\clwWidth`), shading (`\clcbpat`), per-side borders (`\clbrdrt/r/b/l` with style/width/color) | ✅ |
-| Hyperlinks (`\field HYPERLINK`) | ✅ |
-| Fields: PAGEREF, REF, DATE/TIME, PAGE/NUMPAGES | ✅ |
-| Bookmarks (`\bkmkstart`) | ✅ `<a id>` |
-| Footnotes (`\footnote`) | ✅ inline `<sup>` + `<ol class="footnotes">` |
-| Headers / footers | ✅ opt-in |
-| Sections / page breaks | ✅ |
+| `None` | Text HTML-encoded only; all URLs pass through |
+| `Basic` *(default)* | Strips dangerous schemes (`javascript:`, `vbscript:`, `data:`, `file:`) |
+| `Strict` | Allows only `http`, `https`, `mailto`, `tel`, and fragment (`#`) links |
 
-## WMF / EMF rendering (`RtfBridge.SystemDrawing`)
+---
 
-Plug in the Windows-based rasterizer to embed vector images as inline PNG:
+## WMF / EMF Vector Images (Windows)
+
+Install `RtfBridge.SystemDrawing` and pass its renderer:
 
 ```csharp
-using RtfBridge;
 using RtfBridge.SystemDrawing;
 
 var options = new RtfToHtmlOptions
 {
-    VectorImageRenderer = new SystemDrawingImageRenderer()
+    VectorImageRenderer = new SystemDrawingImageRenderer(),
 };
-string html = new RtfBridgeConverter().ConvertRtfToHtml(rtfString, options);
+string html = converter.ConvertRtfToHtml(rtfText, options);
 ```
 
-Requires Windows and `System.Drawing.Common`. On non-Windows hosts the renderer degrades gracefully to the built-in placeholder + warning.
+Without a renderer, vector images emit a `[image]` placeholder.
 
-## ASP.NET Core integration (`RtfBridge.AspNetCore`)
+---
 
-```csharp
-using RtfBridge.AspNetCore;
+## RTF Feature Coverage
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddRtfBridge(o => o.EmitFullDocument = true);
+### Text & Formatting
+- [x] Bold, italic, underline, strikethrough
+- [x] Superscript / subscript
+- [x] All-caps, small-caps, hidden text (`\v`)
+- [x] Font family and size (`\f`, `\fs`)
+- [x] Foreground and highlight colour
+- [x] Right-to-left text (`\rtlch`, `\rtlpar`)
+- [x] Underline style variants — double, dotted, dashed, wave, thick
 
-var app = builder.Build();
-app.MapRtfToHtml(); // POST /convert/rtf-to-html  (body = raw RTF, response = text/html)
-app.Run();
+### Paragraphs
+- [x] Alignment — left, centre, right, justify
+- [x] Spacing before/after, indentation, first-line indent
+- [x] Line height (`\sl`, `\slmult`)
+- [x] Page break before (`\pagebb`), keep together (`\keep`)
+- [x] Paragraph borders (all four sides, all RTF border styles)
+- [x] Paragraph background shading
+- [x] Headings (`\outlinelevel`, "heading N" stylesheet names → `<h1>`–`<h6>`)
+- [x] Outline levels (H1–H6)
+
+### Lists
+- [x] Unordered and ordered lists (`\listtable`, `\listoverridetable`)
+- [x] Nested list levels (`\ilvlN`) with optional flattening
+- [x] Legacy `\pn` / `\pnlvlblt` bullet lists
+- [x] Custom bullet symbols from symbol libraries
+- [x] List inside table cell
+
+### Tables
+- [x] Single-level tables (`\trowd`, `\cellx`, `\cell`, `\row`)
+- [x] Word's double-`\trowd` pattern (row definition repeated before `\row`)
+- [x] Cell borders (per side, all RTF border styles)
+- [x] Cell vertical alignment (top / centre / bottom)
+- [x] Cell background colour
+- [x] Cell width and colspan
+- [x] Row height and horizontal alignment
+- [x] Header rows (`\trhdr`) → `<thead>` / `<tbody>`
+- [x] Nested tables (content preserved, inner table gracefully degraded)
+
+### Images
+- [x] PNG, JPEG, GIF embedded as `data:` URIs
+- [x] `\pict` hex-encoded images
+- [x] `\bin` binary image payloads
+- [x] Image size (`\picwgoal`, `\pichgoal`)
+- [x] Float / wrap mode (`\wrapmode`)
+- [x] WMF / EMF via optional `IImageRenderer` plugin
+- [x] Sub-group metadata isolation (GUID, shape properties never corrupt pixel data)
+
+### Character Encoding
+- [x] ANSI / Windows-1252 (`\'hh` escapes)
+- [x] Double-byte code pages (`\ansicpg932`, Shift-JIS, etc.)
+- [x] Per-font charset override (`\fcharset`)
+- [x] Unicode (`\uN?`) including UTF-16 surrogate pairs / emoji
+
+### Advanced
+- [x] Hyperlinks (`\field` / `\fldinst HYPERLINK`) with URL sanitization
+- [x] Bookmarks (`\bkmkstart`, `\bkmkend`) → `<a id="...">`
+- [x] Footnotes (`\footnote`) → inline superscript + end-of-document list
+- [x] Headers and footers (`\header`, `\footer`, `\headerr`, etc.)
+- [x] Outlook RTF-encapsulated HTML extraction (`\fromhtml1`, MS-OXRTFEX)
+- [x] Document language (`\deflang`, `\s0 \lang`) → `<html lang="…">`
+- [x] Body defaults from Normal style → `<style>` block reduces span verbosity
+- [x] Unknown `{\*\destination}` groups skipped cleanly (no content leakage)
+- [x] Page breaks and section breaks → CSS `page-break-before:always`
+- [x] Tab stops → `&emsp;`
+
+### RTF Versions
+- [x] RTF 1.8
+- [x] RTF 1.9.1
+
+---
+
+## Architecture
+
+```
+RtfBridge/
+├── Rtf/
+│   ├── RtfTokenizer.cs       — byte-level lexer, handles \'hh / \bin / \u
+│   ├── RtfParser.cs          — builds the document model from token stream
+│   ├── PictParser.cs         — image hex/binary extraction
+│   ├── RtfSymbolLibrary.cs   — bullet/numbering symbol maps
+│   └── ListNumberingFormatter.cs
+├── Html/
+│   ├── HtmlEmitter.cs        — document model → HTML5 string
+│   └── HtmlDeEncapsulator.cs — Outlook \fromhtml1 extraction
+├── Abstractions/
+│   ├── IRtfBridgeConverter.cs
+│   ├── RtfToHtmlOptions.cs
+│   ├── HtmlSanitizationLevel.cs
+│   ├── RtfConversionResult.cs
+│   ├── RtfParseException.cs
+│   └── IImageRenderer.cs
+└── RtfBridgeConverter.cs     — thread-safe public entry point
 ```
 
-- Route pattern is customizable: `app.MapRtfToHtml("/api/rtf");`
-- Per-request override: `?fullDocument=false` returns an HTML fragment instead of a full document.
-- Request body is read as **bytes**, so `\pict` binary/hex payloads survive framework encoding.
-- Content types accepted: `application/rtf`, `text/rtf`, `text/plain`.
+---
 
-## Determinism
+## Tests
 
-Given identical input and options, output is byte-for-byte identical across platforms and runs. Verified by a dedicated golden-file test.
+130 tests across all target frameworks — net462, net8.0, net10.0.
 
-## Robustness
-
-The parser is fully bounded: malformed RTF (unmatched braces, dangling escapes, truncated `\bin`, huge nesting) never hangs — it returns best-effort HTML plus warnings. Verified by fuzz tests. If an unexpected internal failure does occur, it surfaces as a documented `RtfParseException` (with the original exception as `InnerException`) rather than an arbitrary exception type.
-
-## Testing
-
-- `RtfBridge.Tests` — core parser/emitter (runs on `net462`, `net8.0`, `net10.0`).
-- `RtfBridge.SystemDrawing.Tests` — WMF/EMF renderer (Windows).
-- `RtfBridge.AspNetCore.Tests` — DI + endpoint (uses `Microsoft.AspNetCore.TestHost`).
-
-Run the full suite:
-
-```powershell
+```bash
 dotnet test
 ```
 
-## Roadmap
+Coverage includes: surrogate pairs, DBCS/Shift-JIS, `\fcharset` overrides, font tables, hyperlink sanitization, list nesting, headings, nested tables, footnotes, headers/footers, Outlook HTML encapsulation, `\pict` sub-group isolation, `\bin` images, RTF parse-exception propagation.
 
-- ✅ Phase 0–3 — parser, emitter, images, lists, tables, fields, footnotes, headers/footers.
-- ✅ Phase 4 — GA `2.0.0`, docs, fuzz suite, Word-style compatibility tests.
-- ✅ Phase 4b — `RtfBridge.SystemDrawing` (WMF/EMF via GDI+).
-- ✅ Phase 5 — `net10.0` TFM, `RtfBridge.AspNetCore` package.
-- ✅ Phase 6 — High-value syntax gap closure: caps/small caps, hidden text, RTL, language, line spacing, underline style variants, keep-together / page-break-before.
-- ✅ Phase 7 — Baseline shift (`\up`/`\dn`), paragraph positioning (`\posx`/`\posy`/named anchors), image wrap (`\shpwr`).
-- ✅ Phase 8 — Table row/cell formatting (header rows, row alignment/height, cell padding/width/vertical-align/shading, per-side cell borders) and paragraph borders + shading (`\brdr*`, `\cbpat`).
-- ✅ Phase 9 — Review hardening: emoji/surrogate pairs, DBCS + `\fcharset` codepage decoding, skipped-destination isolation, unbraced font tables, legacy `\*\pn` lists, headings, `\bin` picture payloads, hyperlink URL sanitization, Outlook HTML de-encapsulation, nested-table flattening, `RtfBridgeConverter` rename (old `RtfBridge` class kept as obsolete alias).
-- ⏳ Phase 10 — True nested-table rendering, tab leaders (`\tqr\tqc\tldot`), tracked-changes (`\revised`, `\deleted`), extended LCID table, CI perf benchmarks + cross-OS golden-file parity.
+---
 
 ## License
 
-See repository root.
+MIT © [Amit Tiwari](https://github.com/AbbY2)
